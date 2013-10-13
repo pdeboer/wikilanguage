@@ -58,16 +58,7 @@
             <version>1.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>net.noerd</groupId>
-            <artifactId>prequel_2.9.2</artifactId>
-            <version>0.3.8</version>
-        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -89,11 +80,6 @@
             <version>1.0.3</version>
         </dependency>
         <dependency>
-            <groupId>org.schwering</groupId>
-            <artifactId>irc</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.5</version>
@@ -107,26 +93,8 @@
             <version>1.7.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.jolbox</groupId>
-            <artifactId>bonecp</artifactId>
-            <version>0.7.1.RELEASE</version>
-        </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>info-bliki-repository</id>
-            <url>http://gwtwiki.googlecode.com/svn/maven-repository/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-    </repositories>
 
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
@@ -137,7 +105,6 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <!-- <mainClass>edu.mit.cci.util.IRCDataCollector</mainClass> -->
                             <mainClass>edu.mit.cci.WikiLanguage</mainClass>
                         </manifest>
                     </archive>

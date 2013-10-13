@@ -1,7 +1,6 @@
 package edu.mit.cci.db
 
 import java.sql.{ResultSet, PreparedStatement, DriverManager, Connection}
-import com.jolbox.bonecp.{BoneCP, BoneCPConfig}
 import scala.collection.mutable
 
 /**

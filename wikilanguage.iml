@@ -5,7 +5,7 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="Maven: org.scala-lang:scala-compiler-bundle:2.10.1" />
-        <option name="compilerOptions" value="-make:transitive -dependencyfile /Users/pdeboer/Documents/code/wikilanguages/target/.scala_dependencies" />
+        <option name="compilerOptions" value="-make:transitive -dependencyfile /Users/pdeboer/Documents/code/wikilanguage/target/.scala_dependencies" />
         <option name="vmOptions" value="" />
       </configuration>
     </facet>
@@ -24,14 +24,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scala-tools.testing:specs_2.10:1.6.9" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.scalatest:scalatest:1.2" level="project" />
-    <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
-    <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
-    <orderEntry type="library" name="Maven: net.noerd:prequel_2.9.2:0.3.8" level="project" />
-    <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.5" level="project" />
-    <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:1.4" level="project" />
-    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
-    <orderEntry type="library" name="Maven: joda-time:joda-time:2.1" level="project" />
-    <orderEntry type="library" name="Maven: org.joda:joda-convert:1.2" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.26" level="project" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.0.4" level="project" />
@@ -40,13 +32,10 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.tukaani:xz:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.juniversalchardet:juniversalchardet:1.0.3" level="project" />
-    <orderEntry type="library" name="Maven: org.schwering:irc:1.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.5" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.7.2" level="project" />
-    <orderEntry type="library" name="Maven: com.jolbox:bonecp:0.7.1.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:r08" level="project" />
   </component>
 </module>
 
