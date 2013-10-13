@@ -42,12 +42,12 @@ object Connector {
 
 	}
 
-  def autoCloseStmt(f:(Statement)=>Unit):Boolean = {
+  def autoCloseStmt(query:String)(f:(Statement)=>Unit):Boolean = {
     autoClose(getConnection) {
       conn => {
         if(conn != null) return false
 
-        autoClose(conn.createStatement()) { stmt =>
+        autoClose(conn.prepareStatement(query)) { stmt =>
           f(stmt)
         }
       }

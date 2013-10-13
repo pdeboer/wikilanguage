@@ -3,6 +3,7 @@ package edu.mit.cci.wikilanguage.db
 import edu.mit.cci.wikilanguage.model.WikiCategory
 import edu.mit.cci.db.{Connector, DAOQueryReturningType}
 import Connector.autoClose
+import Connector.autoCloseStmt
 
 /**
  * User: pdeboer
@@ -16,7 +17,8 @@ class DAO extends DAOQueryReturningType {
       p => p.setString(1, c.category), r => r.getString(1))
     //if category didnt exist yet
     if(data.size == 0) {
-
+      //TODO insert
     }
+    return true
   }
 }
