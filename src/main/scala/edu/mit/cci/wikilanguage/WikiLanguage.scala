@@ -9,5 +9,4 @@ import java.text.SimpleDateFormat
  */
 object WikiLanguage extends App {
 
-  println("hi")
 }

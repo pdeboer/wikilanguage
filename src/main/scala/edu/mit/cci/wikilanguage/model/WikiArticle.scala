@@ -21,7 +21,6 @@ import edu.mit.cci.util.U
 class WikiArticle(val name: String, val lang:String ="en") {
 	private var _content: String = ""
 	private var _parsed: Element = null
-	private var _pictures: Option[List[WikiPicture]] = null
 
 	def text: String = {
 		if (_content == "") {
@@ -58,35 +57,6 @@ class WikiArticle(val name: String, val lang:String ="en") {
 		val ps = parsed.select("p")
 		if (ps.size() == 0) return parsed.text()
 		else return ps.get(0).text()
-	}
-
-	/**
-	 * list of pictures for this article
-	 * @return
-	 */
-	def pictures: Option[List[WikiPicture]] = {
-		if (_pictures == null) {
-			if (parsed == null) return None
-
-			val images = parsed.select("img")
-			if (images.size() == 0) return None
-			val r = U.convertJSoupToList(images).par.map(u => {
-				if (u.attr("src") != null) {
-					val src = if (u.attr("src").startsWith("//")) "http:" + u.attr("src") else u.attr("src")
-
-					if (src == null) null
-
-					val pic = new WikiPicture(src)
-					if (pic.bytes == null || pic.bytes.length < 500) null
-					else pic
-				} else {
-					null
-				}
-			}).filter(i => i != null && i.bytes != null && i.bytes.size > 0).toList
-
-			_pictures = if (r.size > 0) Some(r) else None
-		}
-		_pictures
 	}
 
 	def titleInOtherLanguages: List[String] = {
