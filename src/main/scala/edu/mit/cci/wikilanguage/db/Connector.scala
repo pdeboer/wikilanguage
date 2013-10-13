@@ -1,6 +1,6 @@
 package edu.mit.cci.db
 
-import java.sql.{ResultSet, PreparedStatement, DriverManager, Connection}
+import java.sql._
 import scala.collection.mutable
 
 /**
@@ -41,6 +41,20 @@ object Connector {
 		connection
 
 	}
+
+  def autoCloseStmt(f:(Statement)=>Unit):Boolean = {
+    autoClose(getConnection) {
+      conn => {
+        if(conn != null) return false
+
+        autoClose(conn.createStatement()) { stmt =>
+          f(stmt)
+        }
+      }
+    }
+    return true
+  }
+
 
 	def autoClose[T](closable: T)(f: T => Unit) {
 		try {

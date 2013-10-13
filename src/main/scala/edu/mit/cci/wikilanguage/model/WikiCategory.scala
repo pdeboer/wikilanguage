@@ -27,7 +27,7 @@ import java.io.{BufferedReader, InputStream, InputStreamReader}
 
  if too many members, use cmstart to retrieve next page
  */
-class WikiCategory(val category: String, cmStart: String = null) {
+class WikiCategory(val category: String, cmStart: String = null, val lang:String = "en") {
   require(category != null)
 
   private var _contents: Array[String] = null
@@ -38,12 +38,10 @@ class WikiCategory(val category: String, cmStart: String = null) {
   def contents: Array[String] = {
     if (_contents == null) {
       val client = new HttpClient()
-      val method = new GetMethod("http://en.wikipedia.org/w/api.php?action=query" +
+      val method = new GetMethod("http://"+lang+".wikipedia.org/w/api.php?action=query" +
         "&list=categorymembers&cmtitle=" + categoryClean + "&cmsort=timestamp&format=xml" +
         "&cmdir=desc&cmlimit=500" + (if (cmStart != null) "&cmstart=" + cmStart))
       // method.addRequestHeader("Accept-Charset", "utf-8")
-      method.addRequestHeader("Accept", "application/xml")
-      method.addRequestHeader("Content-Type", "application/xml")
       client.executeMethod(method)
 
       val data = method.getResponseBodyAsString()
