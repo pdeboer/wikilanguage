@@ -27,7 +27,7 @@ import java.io.{BufferedReader, InputStream, InputStreamReader}
 
  if too many members, use cmstart to retrieve next page
  */
-class WikiCategory(val category: String, cmStart: String = null, val lang:String = "en") {
+class WikiCategory(val category: String, cmStart: String = null, val lang:String = "en", var id:Int = -1) {
   require(category != null)
 
   private var _contents: Array[String] = null
