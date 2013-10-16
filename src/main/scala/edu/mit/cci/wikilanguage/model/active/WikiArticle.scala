@@ -1,4 +1,4 @@
-package edu.mit.cci.model.active
+package edu.mit.cci.wikilanguage.model.active
 
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
@@ -10,7 +10,6 @@ import org.mozilla.universalchardet.UniversalDetector
 import scala.io.Source
 import scala.None
 import edu.mit.cci.util.U
-import edu.mit.cci.wikilanguage.model.WikiCategory
 import scala.xml.XML
 
 /**

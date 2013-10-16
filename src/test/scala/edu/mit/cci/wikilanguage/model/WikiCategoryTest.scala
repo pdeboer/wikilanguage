@@ -3,6 +3,7 @@ package edu.mit.cci.wikilanguage.model
 import org.junit.runner.RunWith
 import org.specs._
 import org.specs.runner.{JUnitSuiteRunner, JUnit}
+import edu.mit.cci.wikilanguage.model.active.WikiCategory
 
 //import org.scalacheck.Gen
 

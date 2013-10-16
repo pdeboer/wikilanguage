@@ -1,9 +1,9 @@
 package edu.mit.cci.wiki
 
-import edu.mit.cci.model.active.WikiArticle
 import scala.collection.mutable
 import java.util
 import java.util.Map.Entry
+import edu.mit.cci.wikilanguage.model.active.WikiArticle
 
 /**
  * @author pdeboer

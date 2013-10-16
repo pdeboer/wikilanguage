@@ -30,7 +30,7 @@ object Connector {
 
 	private def getNewConnection() = {
 		Class.forName("com.mysql.jdbc.Driver")
-		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage?useUnicode=true&characterEncoding=UTF-8", "root", "")
+		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
 
 		connections.synchronized {
 			connections += connection
@@ -45,10 +45,11 @@ object Connector {
   def autoCloseStmt(query:String)(f:(PreparedStatement)=>Unit):Boolean = {
     autoClose(getConnection) {
       conn => {
-        if(conn != null) return false
+        if(conn == null) return false
 
         autoClose(conn.prepareStatement(query)) { stmt =>
           f(stmt)
+          stmt.execute()
         }
       }
     }

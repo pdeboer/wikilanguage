@@ -1,7 +1,7 @@
 package edu.mit.cci.wikilanguage.wiki
 
-import edu.mit.cci.wikilanguage.model.WikiCategory
 import edu.mit.cci.wiki.ArticleCache
+import edu.mit.cci.wikilanguage.model.active.WikiCategory
 
 /**
  * User: pdeboer

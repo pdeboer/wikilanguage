@@ -1,4 +1,4 @@
-package edu.mit.cci.wikilanguage.model
+package edu.mit.cci.wikilanguage.model.active
 
 import org.apache.commons.httpclient.{HttpMethod, HttpClient}
 import org.apache.commons.httpclient.methods.GetMethod
