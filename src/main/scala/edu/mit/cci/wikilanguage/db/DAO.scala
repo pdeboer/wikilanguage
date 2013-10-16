@@ -1,10 +1,8 @@
 package edu.mit.cci.wikilanguage.db
 
 import edu.mit.cci.db.{Connector, DAOQueryReturningType}
-import Connector.autoClose
 import Connector.autoCloseStmt
-import java.sql.{ResultSet, PreparedStatement}
-import edu.mit.cci.wikilanguage.model.active.{WikiArticle, WikiCategory}
+import java.sql.ResultSet
 import edu.mit.cci.wikilanguage.model.{Person, Category}
 
 /**
@@ -13,6 +11,8 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
  * Time: 10:13 AM
  */
 class DAO extends DAOQueryReturningType {
+
+
   def insertCategory(c: Category): Int = {
     val category = categoryByName(c.name)
 
@@ -27,32 +27,32 @@ class DAO extends DAOQueryReturningType {
     return categoryByName(c.name).id
   }
 
-  private def getCategoryWithDefaultResultSet(r:ResultSet) =
+  private def getCategoryWithDefaultResultSet(r: ResultSet) =
     new Category(r.getString(2), lang = r.getString(3))(id = r.getInt(1))
 
   def categoryByName(name: String): Category = {
     val data = typedQuery[Category](
       "SELECT id, name, wiki_language FROM categories WHERE name = ?",
-      p => p.setString(1, name), r=>getCategoryWithDefaultResultSet(r))
+      p => p.setString(1, name), r => getCategoryWithDefaultResultSet(r))
 
     if (data.size > 0) return data(0)
     else return null
   }
 
-  def personByName(name: String, fetchCategories:Boolean=false): Person = {
+  def personByName(name: String, fetchCategories: Boolean = false): Person = {
     val data = typedQuery[Person](
       "SELECT id, name, wiki_language FROM people WHERE name = ?",
       p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
 
     val person = if (data.size > 0) data(0) else null
 
-    if(fetchCategories) {
+    if (fetchCategories) {
       val categories = typedQuery[Category](
         """
           SELECT c.id, c.name, c.wiki_language
           FROM categories c INNER JOIN people2categories p2c ON c.id = p2c.category
           WHERE c.id = ?
-        """, p=>p.setInt(1,person.id), r=>getCategoryWithDefaultResultSet(r))
+        """, p => p.setInt(1, person.id), r => getCategoryWithDefaultResultSet(r))
       person.categories ++= categories
     }
 
@@ -99,11 +99,5 @@ class DAO extends DAOQueryReturningType {
     autoCloseStmt("TRUNCATE connections") {
       stmt => null
     }
-  }
-
-
-  //TODO code
-  private def lock(name: String): Object = {
-    null
   }
 }
