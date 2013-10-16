@@ -18,29 +18,41 @@ class DAOTest  extends Specification with JUnit /*with ScalaCheck*/ {
   "DAO" should {
     val dao = new DAO
     dao.clean()
+    val category = new Category("category", lang="de")()
+    val person = new Person("person", lang="de")()
 
     "be able to add new category" in {
-      val c = new Category("category", lang="de")
-      val cId = dao.insertCategory(c)
 
-      val catDB = dao.categoryByName(c.name)
+      val cId = dao.insertCategory(category)
+
+      val catDB = dao.categoryByName(category.name)
 
       catDB.id mustEqual cId
-      catDB.name mustEqual c.name
-      catDB.lang mustEqual c.lang
-      catDB.id mustNotEq c.id
+      catDB.name mustEqual category.name
+      catDB.lang mustEqual category.lang
+      catDB.id mustNotEq category.id
     }
 
     "be able to add a new person" in {
-      val p = new Person("person", lang="de")
-      val pId = dao.insertPerson(p)
 
-      val pDB = dao.personByName(p.name)
+      val pId = dao.insertPerson(person)
+
+      val pDB = dao.personByName(person.name)
 
       pDB.id mustEqual pId
-      pDB.name mustEqual p.name
-      pDB.lang mustEqual p.lang
-      pDB.id mustNotEq p.id
+      pDB.name mustEqual person.name
+      pDB.lang mustEqual person.lang
+      pDB.id mustNotEq person.id
+    }
+
+    "be able to add categories for people" in {
+      person.categories = person.categories :+ category
+
+      dao.insertPerson(person)
+
+      val p2 = dao.personByName(person.name, true)
+
+      person.categories(0) mustEqual p2.categories(0)
     }
   }
 }

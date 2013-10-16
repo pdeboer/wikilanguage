@@ -3,7 +3,7 @@ package edu.mit.cci.wikilanguage.db
 import edu.mit.cci.db.{Connector, DAOQueryReturningType}
 import Connector.autoClose
 import Connector.autoCloseStmt
-import java.sql.PreparedStatement
+import java.sql.{ResultSet, PreparedStatement}
 import edu.mit.cci.wikilanguage.model.active.{WikiArticle, WikiCategory}
 import edu.mit.cci.wikilanguage.model.{Person, Category}
 
@@ -27,22 +27,36 @@ class DAO extends DAOQueryReturningType {
     return categoryByName(c.name).id
   }
 
+  private def getCategoryWithDefaultResultSet(r:ResultSet) =
+    new Category(r.getString(2), lang = r.getString(3))(id = r.getInt(1))
+
   def categoryByName(name: String): Category = {
     val data = typedQuery[Category](
       "SELECT id, name, wiki_language FROM categories WHERE name = ?",
-      p => p.setString(1, name), r => new Category(r.getString(2), lang = r.getString(3), id = r.getInt(1)))
+      p => p.setString(1, name), r=>getCategoryWithDefaultResultSet(r))
 
     if (data.size > 0) return data(0)
     else return null
   }
 
-  def personByName(name: String): Person = {
+  def personByName(name: String, fetchCategories:Boolean=false): Person = {
     val data = typedQuery[Person](
       "SELECT id, name, wiki_language FROM people WHERE name = ?",
-      p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3), id = r.getInt(1)))
+      p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
 
-    if (data.size > 0) return data(0)
-    else return null
+    val person = if (data.size > 0) data(0) else null
+
+    if(fetchCategories) {
+      val categories = typedQuery[Category](
+        """
+          SELECT c.id, c.name, c.wiki_language
+          FROM categories c INNER JOIN people2categories p2c ON c.id = p2c.category
+          WHERE c.id = ?
+        """, p=>p.setInt(1,person.id), r=>getCategoryWithDefaultResultSet(r))
+      person.categories ++= categories
+    }
+
+    person
   }
 
   def insertPerson(a: Person): Int = {
