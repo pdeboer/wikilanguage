@@ -14,7 +14,7 @@ class UTest extends Specification with JUnit /*with ScalaCheck*/ {
   "U" should {
     "escape URLs correctly" in {
       U.entityEscape("bla bla") mustEqual "bla%20bla"
-      U.entityEscape("bluppäöü") mustEqual "%C3%A4%C3%B6%C3%BC"
+      U.entityEscape("bluppäöü") mustEqual "blupp%C3%A4%C3%B6%C3%BC"
     }
   }
 }

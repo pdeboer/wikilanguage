@@ -24,11 +24,11 @@ DROP TABLE IF EXISTS `categories`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `categories` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(400) DEFAULT NULL,
-  `wiki_language` char(2) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `wiki_language` char(2) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,12 +75,12 @@ DROP TABLE IF EXISTS `people`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `people` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) NOT NULL DEFAULT '',
-  `wiki_language` char(2) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `wiki_language` char(2) CHARACTER SET latin1 NOT NULL DEFAULT '',
   `person_group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,4 +124,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-12 22:42:06
+-- Dump completed on 2013-10-17 18:00:53
