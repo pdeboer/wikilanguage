@@ -53,7 +53,7 @@ class WikiArticle(val name: String, val lang: String = "en") {
     if (_categories == null) {
       val client = U.httpClient()
       val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
-        "format=xml&action=query&prop=categories&titles=" + name + "&cllimit=500")
+        "format=xml&action=query&prop=categories&titles=" + nameCleaned + "&cllimit=500")
       method.addRequestHeader("Accept-Charset", "utf-8")
       client.executeMethod(method)
       val data = method.getResponseBodyAsString
@@ -65,6 +65,8 @@ class WikiArticle(val name: String, val lang: String = "en") {
     }
     _categories
   }
+
+  def nameCleaned = U.entityEscape(name)
 
   def titleInOtherLanguages: List[String] = {
     //TODO: code me

@@ -10,18 +10,32 @@ import edu.mit.cci.wikilanguage.model.Conversions._
  * Date: 10/13/13
  * Time: 10:17 AM
  */
-class CategoryInserter(val lang:String="en"){
-  def process(name:String) {
+class CategoryInserter(val lang: String = "en") {
+  //TODO: needs check if category is actually referring to people.
+  // ended up with stars just before -.-
+  def process(name: String) {
     val cat = new WikiCategory(name, lang = lang)
     val dao = new DAO()
     dao.insertCategory(cat)
 
+    println("analyzing category " + cat.name + ", found " + cat.contents.length + " children")
+
     cat.contents.par.foreach(c => {
-      if(c.startsWith("Category:"))
-        process(c)
+      if (c.startsWith("Category:"))
+        try {
+          process(c)
+        }
+        catch {
+          case e: Exception => e.printStackTrace()
+        }
       else {
-        val article = ArticleCache.get(c, lang)
-        dao.insertPerson(article)
+        try {
+          val article = ArticleCache.get(c, lang)
+          dao.insertPerson(article)
+        }
+        catch {
+          case e: Exception => e.printStackTrace()
+        }
       }
     })
   }

@@ -14,17 +14,21 @@ class DAO extends DAOQueryReturningType {
 
 
   def insertCategory(c: Category): Int = {
-    val category = categoryByName(c.name)
+    try {
+      val category = categoryByName(c.name)
 
-    if (category != null) return category.id
+      if (category != null) return category.id
 
-    autoCloseStmt("INSERT INTO categories (name, wiki_language) VALUES (?,?) ") {
-      stmt =>
-        stmt.setString(1, c.name)
-        stmt.setString(2, c.lang)
+      autoCloseStmt("INSERT INTO categories (name, wiki_language) VALUES (?,?) ") {
+        stmt =>
+          stmt.setString(1, c.name)
+          stmt.setString(2, c.lang)
+      }
+      return categoryByName(c.name).id
     }
-
-    return categoryByName(c.name).id
+    catch {
+      case e: Exception => println("couldnt insert category " + c.name); return -1
+    }
   }
 
   private def getCategoryWithDefaultResultSet(r: ResultSet) =
@@ -60,30 +64,35 @@ class DAO extends DAOQueryReturningType {
   }
 
   def insertPerson(a: Person): Int = {
-    val person = personByName(a.name)
-    if (person != null) return person.id
+    try {
+      val person = personByName(a.name)
+      if (person != null) return person.id
 
-    autoCloseStmt("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
-      stmt =>
-        stmt.setString(1, a.name)
-        stmt.setString(2, a.lang)
+      autoCloseStmt("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
+        stmt =>
+          stmt.setString(1, a.name)
+          stmt.setString(2, a.lang)
+      }
+
+      val personId = personByName(a.name).id
+
+      if (a.categories != null) {
+        //insert super-categories
+        a.categories.foreach(c => {
+          val categoryId = insertCategory(c) //make sure category exists and get id
+
+          autoCloseStmt("INSERT INTO people2categories (person, category) VALUES (?,?)") {
+            stmt =>
+              stmt.setInt(1, personId)
+              stmt.setInt(2, categoryId)
+          }
+        })
+      }
+      return personId
     }
-
-    val personId = personByName(a.name).id
-
-    if (a.categories != null) {
-      //insert super-categories
-      a.categories.foreach(c => {
-        val categoryId = insertCategory(c) //make sure category exists and get id
-
-        autoCloseStmt("INSERT INTO people2categories (person, category) VALUES (?,?)") {
-          stmt =>
-            stmt.setInt(1, personId)
-            stmt.setInt(2, categoryId)
-        }
-      })
+    catch {
+      case e: Exception => println("couldnt insert person " + a.name); return -1
     }
-    return personId
   }
 
   def clean() {

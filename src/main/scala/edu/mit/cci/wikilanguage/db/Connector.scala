@@ -9,47 +9,51 @@ import scala.collection.mutable
  * Time: 6:18 PM
  */
 object Connector {
-	val connections = new mutable.Queue[Connection]()
+  private val connections = new mutable.Queue[Connection]()
 
-	def getConnection: Connection = {
-		//pool.getConnection
+  def getConnection: Connection = {
+    var conn: Connection = null
+    connections.synchronized {
+      // had to use ugly try-catch because scala support for headOption
+      // couldn't cope with a highly parallel environment
+      try {
+        conn = connections.head
+      }
+      catch {
+        case e: Exception => null
+      }
+    }
+    if (conn == null) conn = getNewConnection()
 
+    if (!conn.isValid(10))
+      conn = getConnection
 
-		var conn: Connection = null
-		connections.synchronized {
-			val firstElement = connections.headOption
-			conn = firstElement.getOrElse(getNewConnection())
-			if (!firstElement.isEmpty) connections.dequeue() //remove first
-		}
+    conn
+  }
 
-		if (!conn.isValid(10))
-			conn = getConnection
+  private def getNewConnection() = {
+    Class.forName("com.mysql.jdbc.Driver")
+    val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
 
-		conn
-	}
+    connections.synchronized {
+      connections += connection
+    }
 
-	private def getNewConnection() = {
-		Class.forName("com.mysql.jdbc.Driver")
-		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
+    println("established new connection")
 
-		connections.synchronized {
-			connections += connection
-		}
+    connection
 
-		println("established new connection")
+  }
 
-		connection
-
-	}
-
-  def autoCloseStmt(query:String)(f:(PreparedStatement)=>Unit):Boolean = {
+  def autoCloseStmt(query: String)(f: (PreparedStatement) => Unit): Boolean = {
     autoClose(getConnection) {
       conn => {
-        if(conn == null) return false
+        if (conn == null) return false
 
-        autoClose(conn.prepareStatement(query)) { stmt =>
-          f(stmt)
-          stmt.execute()
+        autoClose(conn.prepareStatement(query)) {
+          stmt =>
+            f(stmt)
+            stmt.execute()
         }
       }
     }
@@ -57,19 +61,19 @@ object Connector {
   }
 
 
-	def autoClose[T](closable: T)(f: T => Unit) {
-		try {
-			f(closable)
-		}
-		catch {
-			case e: Exception => e.printStackTrace()
-		}
-		finally {
-			closable match {
-				case c: Connection => connections += c
-				case r: ResultSet => r.close()
-				case s: PreparedStatement => s.close()
-			}
-		}
-	}
+  def autoClose[T](closable: T)(f: T => Unit) {
+    try {
+      f(closable)
+    }
+    catch {
+      case e: Exception => e.printStackTrace()
+    }
+    finally {
+      closable match {
+        case c: Connection => connections += c
+        case r: ResultSet => r.close()
+        case s: PreparedStatement => s.close()
+      }
+    }
+  }
 }

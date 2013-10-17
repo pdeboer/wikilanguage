@@ -34,7 +34,7 @@ class WikiCategory(val category: String, cmStart: String = null, val lang:String
   private var _contents: Array[String] = null
 
   //TODO clean entities
-  def categoryClean = category.replaceAll(" ", "%20")
+  def categoryClean = U.entityEscape(category)
 
   def contents: Array[String] = {
     if (_contents == null) {
