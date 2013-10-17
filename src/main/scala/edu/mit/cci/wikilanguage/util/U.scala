@@ -2,6 +2,8 @@ package edu.mit.cci.util
 
 import org.jsoup.select.Elements
 import org.jsoup.nodes.Element
+import org.apache.commons.httpclient.{HostConfiguration, MultiThreadedHttpConnectionManager, HttpClient}
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams
 
 /**
  * User: pdeboer
@@ -18,4 +20,19 @@ object U {
 		foreachJSoupElement(lis, ret ::= _)
 		ret
 	}
+
+  private var _httpClient:HttpClient = null
+  def httpClient():HttpClient = {
+    if(_httpClient == null) {
+      val httpClientManager:MultiThreadedHttpConnectionManager = new MultiThreadedHttpConnectionManager()
+      val params = new HttpConnectionManagerParams
+      params.setMaxTotalConnections(50)
+      val hostConfig = new HostConfiguration()
+      hostConfig.setHost("wikipedia.org")
+      params.setMaxConnectionsPerHost(hostConfig, 50)
+      httpClientManager.setParams(params)
+      _httpClient = new HttpClient(httpClientManager)
+    }
+    _httpClient
+  }
 }

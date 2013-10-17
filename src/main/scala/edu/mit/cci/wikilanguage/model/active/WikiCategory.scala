@@ -6,6 +6,7 @@ import java.net.URLEncoder
 import scala.xml.Source
 import java.util.zip.GZIPInputStream
 import java.io.{BufferedReader, InputStream, InputStreamReader}
+import edu.mit.cci.util.U
 
 /**
  * User: pdeboer
@@ -37,7 +38,7 @@ class WikiCategory(val category: String, cmStart: String = null, val lang:String
 
   def contents: Array[String] = {
     if (_contents == null) {
-      val client = new HttpClient()
+      val client = U.httpClient()
       val method = new GetMethod("http://"+lang+".wikipedia.org/w/api.php?action=query" +
         "&list=categorymembers&cmtitle=" + categoryClean + "&cmsort=timestamp&format=xml" +
         "&cmdir=desc&cmlimit=500" + (if (cmStart != null) "&cmstart=" + cmStart))

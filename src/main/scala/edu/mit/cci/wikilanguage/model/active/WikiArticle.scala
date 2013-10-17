@@ -26,7 +26,7 @@ class WikiArticle(val name: String, val lang: String = "en") {
 
   def text: String = {
     if (_content == "") {
-      val client = new HttpClient()
+      val client = U.httpClient()
       //val method = new GetMethod("http://en.wikipedia.org/w/index.php?title=" + URLEncoder.encode(name) + "&action=raw")
       val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + URLEncoder.encode(name))
       method.addRequestHeader("Accept-Charset", "utf-8")
@@ -51,7 +51,7 @@ class WikiArticle(val name: String, val lang: String = "en") {
 
   def categories = {
     if (_categories == null) {
-      val client = new HttpClient()
+      val client = U.httpClient()
       val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
         "format=xml&action=query&prop=categories&titles=" + name + "&cllimit=500")
       method.addRequestHeader("Accept-Charset", "utf-8")

@@ -1,6 +1,7 @@
 package edu.mit.cci.wikilanguage
 
 import edu.mit.cci.wikilanguage.model.active.WikiCategory
+import edu.mit.cci.wikilanguage.wiki.CategoryInserter
 
 /**
  * User: pdeboer
@@ -8,6 +9,6 @@ import edu.mit.cci.wikilanguage.model.active.WikiCategory
  * Time: 6:52 PM
  */
 object PersonFinder extends App{
-  val root = new WikiCategory("Category:People_by_century")
-  root.contents
+  val processor = new CategoryInserter()
+  processor.process("Category:People_by_century")
 }
