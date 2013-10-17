@@ -23,6 +23,8 @@ object U {
 		ret
 	}
 
+  def containsNumbers(str:String) = str.replaceAll("[^0-9]", "").length > 0
+
   def entityEscape(in:String) =
     new URI("http","//mit.edu/"+in, null).toASCIIString.substring("http://mit.edu/".length)
 
