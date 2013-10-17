@@ -105,7 +105,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.mit.cci.WikiLanguage</mainClass>
+                            <mainClass>edu.mit.cci.wikilanguage.WikiLanguage</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

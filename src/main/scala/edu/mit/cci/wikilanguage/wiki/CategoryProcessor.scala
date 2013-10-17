@@ -47,7 +47,7 @@ class CategoryProcessor(val lang: String = "en") {
   def isPerson(name:String) = checkString(name, Array(":", "list", "wikipedia"))
 
   def isPersonCategory(name: String):Boolean =
-    checkString(name,Array("cleanup")) && U.containsNumbers(name)
+    checkString(name,Array("cleanup")) && U.containsNumber(name)
 
   private def checkString(str:String, notContains:Array[String]):Boolean = {
     val lowerCaseString = str.toLowerCase()
