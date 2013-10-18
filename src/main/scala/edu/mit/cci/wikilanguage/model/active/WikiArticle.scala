@@ -4,7 +4,6 @@ import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, Document}
-import info.bliki.wiki.model.WikiModel
 import java.net.URLEncoder
 import org.mozilla.universalchardet.UniversalDetector
 import scala.io.Source
