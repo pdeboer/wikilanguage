@@ -20,28 +20,35 @@ class CategoryProcessor(val lang: String = "en") {
 
     println("analyzing category " + cat.name + ", found " + cat.contents.length + " children")
 
-    cat.contents.par.foreach(c => {
-      if (c.startsWith("Category:")) {
-        if (isPersonCategory(c)) {
+    try {
+      cat.contents.par.foreach(c => {
+        if (c.startsWith("Category:")) {
+          if (isPersonCategory(c)) {
+            try {
+              process(c)
+            }
+            catch {
+              case e: Exception => e.printStackTrace()
+            }
+          }
+        }
+        else if (isPerson(c)) {
           try {
-            process(c)
+            val article = ArticleCache.get(c, lang)
+            dao.insertPerson(article)
           }
           catch {
             case e: Exception => e.printStackTrace()
           }
         }
+      })
+    }
+    catch {
+      case e:Exception => {
+        println("problem with parallel category processing")
+        e.printStackTrace(Console.err)
       }
-      else if(isPerson(c)) {
-        try {
-          val article = ArticleCache.get(c, lang)
-          dao.insertPerson(article)
-
-        }
-        catch {
-          case e: Exception => e.printStackTrace()
-        }
-      }
-    })
+    }
   }
 
   def isPerson(name:String) = checkString(name, Array(":", "list", "wikipedia"))
