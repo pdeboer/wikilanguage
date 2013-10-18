@@ -50,7 +50,29 @@ class DAO extends DAOQueryReturningType {
 
     val person = if (data.size > 0) data(0) else null
 
+    if (fetchCategories && person != null) {
+      enrichPersonWithCategories(person)
+    }
+
+    person
+  }
+
+  def personById(id: Int, fetchCategories: Boolean = false): Person = {
+    val data = typedQuery[Person](
+      "SELECT id, name, wiki_language FROM people WHERE id = ?",
+      p => p.setInt(1, id), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
+
+    val person = if (data.size > 0) data(0) else null
+
     if (fetchCategories) {
+      enrichPersonWithCategories(person)
+    }
+
+    person
+  }
+
+  private def enrichPersonWithCategories(person: Person) {
+    if (person != null) {
       val categories = typedQuery[Category](
         """
           SELECT c.id, c.name, c.wiki_language
@@ -59,9 +81,8 @@ class DAO extends DAOQueryReturningType {
         """, p => p.setInt(1, person.id), r => getCategoryWithDefaultResultSet(r))
       person.categories ++= categories
     }
-
-    person
   }
+
 
   def insertPerson(a: Person): Int = {
     try {
@@ -92,6 +113,26 @@ class DAO extends DAOQueryReturningType {
     }
     catch {
       case e: Exception => println("couldnt insert person " + a.name); return -1
+    }
+  }
+
+  def insertPeopleConnectionID(fromPersonId: Int, toPersonName: String, articleId: Int, lang: String): Boolean = {
+    try {
+      autoCloseStmt(
+        """INSERT INTO connections (person_from, person_to, article_name, wiki_language)
+        SELECT ?, id, ?, ? FROM people WHERE name = ?
+        """) {
+        stmt =>
+          stmt.setInt(1, fromPersonId)
+          stmt.setInt(2, articleId)
+          stmt.setString(3, lang)
+          stmt.setString(4, toPersonName)
+      }
+      true
+    }
+    catch {
+      case e: Exception => println("coulndt insert connection " + fromPersonId + " to " + toPersonName)
+        false
     }
   }
 
