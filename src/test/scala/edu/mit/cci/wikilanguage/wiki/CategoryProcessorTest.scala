@@ -12,27 +12,35 @@ import edu.mit.cci.wikilanguage.model.{Category, Person}
  * Time: 8:24 PM
  */
 @RunWith(classOf[JUnitSuiteRunner])
-class CategoryProcessorTest  extends Specification with JUnit /*with ScalaCheck*/ {
-  "Category Inserter" should {
-    val ci = new CategoryProcessor()
-    "detect promising category names" in {
-      ci.isPersonCategory("bla CleAnup bl11a") must beFalse
-      ci.isPersonCategory("12th century deaths") must beTrue
-    }
+class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/ {
+	"Category Inserter" should {
+		val ci = new CategoryContentProcessor(Category("asdf")())
+		val cp = new CategoryProcessor()
+		"detect promising category names" in {
+			ci.isPersonCategory("bla CleAnup bl11a") must beFalse
+			ci.isPersonCategory("12th century deaths") must beTrue
+		}
 
-    "detect promising person names" in {
-      ci.isPerson("bla bla") must beTrue
-      ci.isPerson("List of people") must beFalse
-      ci.isPerson("Wikipedia blabla") must beFalse
-      ci.isPerson("Talk: blabla") must beFalse
-    }
-  }
+		"detect promising person names" in {
+			ci.isPerson("bla bla") must beTrue
+			ci.isPerson("List of people") must beFalse
+			ci.isPerson("Wikipedia blabla") must beFalse
+			ci.isPerson("Talk: blabla") must beFalse
+		}
+
+		"queue management works" in {
+			val cat = Category("bla")()
+			cp.addToQueue(cat)
+
+			cp.isProcessed(cat) must beTrue
+		}
+	}
 }
 
 
 object CategoryProcessorTest {
-  def main(args: Array[String]) {
-    new CategoryProcessorTest().main(args)
-  }
+	def main(args: Array[String]) {
+		new CategoryProcessorTest().main(args)
+	}
 
 }
