@@ -14,6 +14,7 @@ class DAO extends DAOQueryReturningType {
 
 
 	def insertCategory(c: Category): Int = {
+		//TODO: between categoryByName and INSERT another thread is able to insert cat. this leads to nasty duplicate exception
 		try {
 			val category = categoryByName(c.name)
 
@@ -84,7 +85,7 @@ class DAO extends DAOQueryReturningType {
 	}
 
 
-	def insertPerson(a: Person): Int = {
+	def insertPerson(a: Person, resolveCategories:Boolean = false): Int = {
 		try {
 			val person = personByName(a.name)
 			if (person != null) return person.id
@@ -97,7 +98,7 @@ class DAO extends DAOQueryReturningType {
 
 			val personId = personByName(a.name).id
 
-			if (a.categories != null) {
+			if (resolveCategories && a.categories != null) {
 				//insert super-categories
 				a.categories.foreach(c => {
 					val categoryId = insertCategory(c) //make sure category exists and get id
@@ -131,7 +132,7 @@ class DAO extends DAOQueryReturningType {
 			true
 		}
 		catch {
-			case e: Exception => println("coulndt insert connection " + fromPersonId + " to " + toPersonName)
+			case e: Exception => println("couldnt insert connection " + fromPersonId + " to " + toPersonName)
 				false
 		}
 	}

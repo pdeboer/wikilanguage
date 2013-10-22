@@ -9,9 +9,8 @@ import edu.mit.cci.wikilanguage.db.DAO
  * Date: 10/16/13
  * Time: 6:52 PM
  */
-object PersonFinder extends App {
+object PersonDiscoverer extends App {
 	new DAO().clean()
 	val processor = new CategoryProcessor()
 	processor.process("Category:People_by_century")
-	processor.shutdown()
 }

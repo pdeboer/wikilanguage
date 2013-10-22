@@ -9,7 +9,7 @@ import java.util.concurrent.{Executors, Callable, ExecutorService}
 import scala.collection.JavaConversions.asScalaSet
 import scala.collection.mutable
 import java.util.Collections
-import edu.mit.cci.wikilanguage.model.Category
+import edu.mit.cci.wikilanguage.model.{Person, Category}
 
 /**
  * User: pdeboer
@@ -51,32 +51,36 @@ class CategoryProcessor(val lang: String = "en") {
 
 	private class Worker(category: Category) extends Runnable {
 		def run() {
-			addToQueue(new CategoryContentProcessor(category).call())
+			addToQueue(new CategoryContentProcessor(category).call().categories)
 		}
 	}
 
 }
+case class CategoriesAndPeople(categories:List[Category], people:List[Person])
 
-class CategoryContentProcessor(category: Category) extends Callable[List[Category]] {
-	def call(): List[Category] = {
+class CategoryContentProcessor(category: Category, insertDB:Boolean=true) extends Callable[CategoriesAndPeople] {
+	def call(): CategoriesAndPeople = {
 		val cat = new WikiCategory(category.name, lang = category.lang)
 		val dao = new DAO()
 
-		dao.insertCategory(cat)
+		if(insertDB) dao.insertCategory(cat)
 
-		var ret = List.empty[Category]
+		var retCategories = List.empty[Category]
+		var retPeople = List.empty[Person]
 
 		cat.contents.foreach(c => {
 			if (c.startsWith("Category:")) {
 				if (isPersonCategory(c)) {
 					// should be processed
-					ret ::= Category(c, category.lang)()
+					retCategories ::= Category(c, category.lang)()
 				}
 			}
 			else if (isPerson(c)) {
 				try {
 					val article = ArticleCache.get(c, category.lang)
-					dao.insertPerson(article)
+					if(insertDB) dao.insertPerson(article, resolveCategories = false)
+
+					retPeople ::= Person(c, category.lang)()
 				}
 				catch {
 					case e: Exception => e.printStackTrace()
@@ -84,9 +88,9 @@ class CategoryContentProcessor(category: Category) extends Callable[List[Categor
 			}
 		})
 
-		println("finished analyzing category " + cat.name + ", found " + cat.contents.length + " children of which " + ret.length + " are to be processed")
+		println("finished analyzing category " + cat.name + ", found " + cat.contents.length + " children of which " + retCategories.length + " are to be processed")
 
-		ret
+		CategoriesAndPeople(retCategories, retPeople)
 	}
 
 	def isPerson(name: String) = checkString(name, Array(":", "list", "wikipedia"))
