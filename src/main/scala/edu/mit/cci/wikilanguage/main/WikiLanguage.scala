@@ -1,4 +1,4 @@
-package edu.mit.cci.wikilanguage
+package edu.mit.cci.wikilanguage.main
 
 import java.util.Calendar
 import java.text.SimpleDateFormat

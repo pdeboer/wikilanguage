@@ -9,7 +9,7 @@ import edu.mit.cci.util.U
  * Date: 10/17/13
  * Time: 10:47 PM
  */
-class PersonProcessor(val personId: Int) {
+class PersonLinkProcessor(val personId: Int) {
   val dao = new DAO()
   val person = dao.personById(personId)
 

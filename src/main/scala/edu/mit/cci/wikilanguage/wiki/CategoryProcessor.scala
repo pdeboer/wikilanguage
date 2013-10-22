@@ -20,6 +20,8 @@ class CategoryProcessor(val lang: String = "en") {
 	private val processed: mutable.Set[String] = new java.util.HashSet[String]()
 	private val exec = Executors.newFixedThreadPool(40)
 
+	def shutdown() { exec.shutdown() }
+
 	def setProcessed(category: Category) {
 		synchronized {
 			processed += category.name
