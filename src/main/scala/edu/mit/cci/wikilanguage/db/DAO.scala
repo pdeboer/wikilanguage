@@ -28,7 +28,7 @@ class DAO extends DAOQueryReturningType {
 			return categoryByName(c.name).id
 		}
 		catch {
-			case e: Exception => println("couldnt insert category " + c.name); return -1
+			case e: Throwable => println("couldnt insert category " + c.name); return -1
 		}
 	}
 
@@ -86,6 +86,7 @@ class DAO extends DAOQueryReturningType {
 
 
 	def insertPerson(a: Person, resolveCategories:Boolean = false): Int = {
+		//TODO: another thread can insert the person in-between fetching by name and inserting it..
 		try {
 			val person = personByName(a.name)
 			if (person != null) return person.id
@@ -113,7 +114,7 @@ class DAO extends DAOQueryReturningType {
 			return personId
 		}
 		catch {
-			case e: Exception => println("couldnt insert person " + a.name); return -1
+			case e: Throwable => println("couldnt insert person " + a.name); return -1
 		}
 	}
 
@@ -132,7 +133,7 @@ class DAO extends DAOQueryReturningType {
 			true
 		}
 		catch {
-			case e: Exception => println("couldnt insert connection " + fromPersonId + " to " + toPersonName)
+			case e: Throwable => println("couldnt insert connection " + fromPersonId + " to " + toPersonName)
 				false
 		}
 	}

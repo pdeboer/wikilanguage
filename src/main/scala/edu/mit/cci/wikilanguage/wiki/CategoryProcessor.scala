@@ -95,7 +95,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 					retPeople ::= Person(c, cat.lang)()
 				}
 				catch {
-					case e: Exception => e.printStackTrace()
+					case e: Throwable => e.printStackTrace()
 				}
 			}
 		})
