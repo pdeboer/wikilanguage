@@ -20,7 +20,9 @@ class CategoryProcessor(val lang: String = "en") {
 	private val processed: mutable.Set[String] = new java.util.HashSet[String]()
 	private val exec = Executors.newFixedThreadPool(40)
 
-	def shutdown() { exec.shutdown() }
+	def shutdown() {
+		exec.shutdown()
+	}
 
 	def setProcessed(category: Category) {
 		synchronized {
@@ -56,31 +58,41 @@ class CategoryProcessor(val lang: String = "en") {
 	}
 
 }
-case class CategoriesAndPeople(categories:List[Category], people:List[Person])
 
-class CategoryContentProcessor(category: Category, insertDB:Boolean=true) extends Callable[CategoriesAndPeople] {
+case class CategoriesAndPeople(categories: List[Category], people: List[Person])
+
+class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends Callable[CategoriesAndPeople] {
+	//automatically retry content-fetching
+	def categoryContents(maxTries: Int = 3): Array[String] = {
+		if (maxTries == 0) return Array.empty[String]
+
+		val wiki = new WikiCategory(cat.name, lang = cat.lang)
+		if (wiki.contents.size == 0) categoryContents(maxTries - 1) else wiki.contents
+	}
+
 	def call(): CategoriesAndPeople = {
-		val cat = new WikiCategory(category.name, lang = category.lang)
-		val dao = new DAO()
+		if (cat.name.equals("Category:1944_births")) println("@1944category") //TODO remove
 
-		if(insertDB) dao.insertCategory(cat)
+		val dao = new DAO()
+		if (insertDB) dao.insertCategory(cat)
 
 		var retCategories = List.empty[Category]
 		var retPeople = List.empty[Person]
 
-		cat.contents.foreach(c => {
+		categoryContents().foreach(c => {
 			if (c.startsWith("Category:")) {
 				if (isPersonCategory(c)) {
 					// should be processed
-					retCategories ::= Category(c, category.lang)()
+					retCategories ::= Category(c, cat.lang)()
 				}
 			}
 			else if (isPerson(c)) {
 				try {
-					val article = ArticleCache.get(c, category.lang)
-					if(insertDB) dao.insertPerson(article, resolveCategories = false)
+					if(c.contains("Ledergerber")) println("Ledergerber found") //TODO remove
+					val article = ArticleCache.get(c, cat.lang)
+					if (insertDB) dao.insertPerson(article, resolveCategories = false)
 
-					retPeople ::= Person(c, category.lang)()
+					retPeople ::= Person(c, cat.lang)()
 				}
 				catch {
 					case e: Exception => e.printStackTrace()
@@ -88,19 +100,21 @@ class CategoryContentProcessor(category: Category, insertDB:Boolean=true) extend
 			}
 		})
 
-		println("finished analyzing category " + cat.name + ", found " + cat.contents.length + " children of which " + retCategories.length + " are to be processed")
+		println("finished analyzing category " + cat.name + " , found " + retCategories.length + " are to be processed")
 
 		CategoriesAndPeople(retCategories, retPeople)
 	}
 
-	def isPerson(name: String) = checkString(name, Array(":", "list", "wikipedia"))
+	def isPerson(name: String) = !checkStringContains(name, Array(":", "list", "wikipedia"))
 
-	def isPersonCategory(name: String): Boolean =
-		checkString(name, Array("cleanup")) && U.containsNumber(name)
+	def isPersonCategory(name: String): Boolean = {
+		!checkStringContains(name, Array("cleanup")) &&
+		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death")))
+	}
 
-	private def checkString(str: String, notContains: Array[String]): Boolean = {
+	private def checkStringContains(str: String, contains: Array[String]): Boolean = {
 		val lowerCaseString = str.toLowerCase()
 
-		notContains.forall(!lowerCaseString.contains(_))
+		contains.filter(lowerCaseString.contains(_)).size > 0
 	}
 }

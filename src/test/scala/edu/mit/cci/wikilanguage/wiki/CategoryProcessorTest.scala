@@ -20,6 +20,7 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 		"detect promising category names" in {
 			ci.isPersonCategory("bla CleAnup bl11a") must beFalse
 			ci.isPersonCategory("12th century deaths") must beTrue
+			ci.isPersonCategory("Category:1944_births") must beTrue
 		}
 
 		"detect promising person names" in {
@@ -45,9 +46,10 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 		}
 
 		"discover all the categories" in {
-			val cp = new CategoryContentProcessor(Category("Category:1944_births")(), insertDB=true)
+			val cp = new CategoryContentProcessor(Category("Category:1944_births")(), insertDB=false)
 
 			val res = cp.call()
+			println(res.people.size)
 			res.people.contains(Person("Elmar Ledergerber")()) must beTrue
 		}
 	}
