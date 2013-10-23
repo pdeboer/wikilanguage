@@ -49,7 +49,7 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 			val cp = new CategoryContentProcessor(Category("Category:1944_births")(), insertDB=false)
 
 			val res = cp.call()
-			println(res.people.size)
+			res.people.size > 7600 must beTrue
 			res.people.contains(Person("Elmar Ledergerber")()) must beTrue
 		}
 	}
