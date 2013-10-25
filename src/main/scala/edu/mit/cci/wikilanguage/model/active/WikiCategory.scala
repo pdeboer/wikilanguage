@@ -7,6 +7,7 @@ import scala.xml.Source
 import java.util.zip.GZIPInputStream
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 import edu.mit.cci.util.U
+import scala.util.Random
 
 /**
  * User: pdeboer
@@ -42,6 +43,9 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 			  "&list=categorymembers&cmtitle=" + categoryClean + "&cmsort=timestamp&format=xml" +
 			  "&cmdir=desc&cmlimit=500" + (if (cmStart != null) "&cmstart=" + cmStart))
 			// method.addRequestHeader("Accept-Charset", "utf-8")
+
+			//delay and get data
+			Thread.sleep((1000 * 10 * new java.util.Random().nextFloat()).asInstanceOf[Long])
 			client.executeMethod(method)
 
 			val data = method.getResponseBodyAsString()
