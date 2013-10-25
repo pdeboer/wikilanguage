@@ -71,7 +71,6 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 	}
 
 	def call(): CategoriesAndPeople = {
-		if (cat.name.equals("Category:1944_births")) println("@1944category") //TODO remove
 
 		val dao = new DAO()
 		if (insertDB) dao.insertCategory(cat)
@@ -88,7 +87,6 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 			}
 			else if (isPerson(c)) {
 				try {
-					if(c.contains("Ledergerber")) println("Ledergerber found") //TODO remove
 					val article = ArticleCache.get(c, cat.lang)
 					if (insertDB) dao.insertPerson(article, resolveCategories = false)
 

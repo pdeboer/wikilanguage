@@ -3,7 +3,7 @@ package edu.mit.cci.wikilanguage.model.active
 import org.apache.commons.httpclient.{HttpMethod, HttpClient}
 import org.apache.commons.httpclient.methods.GetMethod
 import java.net.URLEncoder
-import scala.xml.Source
+import scala.xml.{Elem, Source}
 import java.util.zip.GZIPInputStream
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 import edu.mit.cci.util.U
@@ -38,6 +38,33 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 
 	def contents: Array[String] = {
 		if (_contents == null) {
+			//parse xml
+			val xml = fetchContents(3)
+			if (xml != null) {
+				val members = (xml \\ "cm").map(m => (m \ "@title").text)
+
+				_contents = Array() ++ members
+
+				//get other pages
+				if ((xml \\ "query-continue").length == 1) {
+					val newStart = xml \\ "query-continue" \ "categorymembers" \ "@cmstart"
+					_contents ++= new WikiCategory(category, newStart.text).contents
+				}
+
+				_contents.filter(_ != null) //remove null values
+			} else {
+				_contents = Array.empty[String]
+			}
+		}
+		_contents
+	}
+
+	def fetchContents(tries: Int = 3): Elem = {
+		if (tries <= 0) return null
+
+		if(tries <3) println(tries+" try for "+category)
+
+		try {
 			val client = U.httpClient()
 			val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?action=query" +
 			  "&list=categorymembers&cmtitle=" + categoryClean + "&cmsort=timestamp&format=xml" +
@@ -49,22 +76,17 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 			client.executeMethod(method)
 
 			val data = method.getResponseBodyAsString()
+
 			method.releaseConnection()
 
-			//parse xml
 			val xml = scala.xml.XML.loadString(data)
 			val members = (xml \\ "cm").map(m => (m \ "@title").text)
+			if (members.size == 0) return fetchContents(tries - 1)
 
-			_contents = Array() ++ members
-
-			//get other pages
-			if ((xml \\ "query-continue").length == 1) {
-				val newStart = xml \\ "query-continue" \ "categorymembers" \ "@cmstart"
-				_contents ++= new WikiCategory(category, newStart.text).contents
-			}
-
-			_contents.filter(_ != null) //remove null values
+			return xml
 		}
-		_contents
+		catch {
+			case e: Throwable => return fetchContents(tries - 1)
+		}
 	}
 }
