@@ -27,7 +27,7 @@ class DAO extends DAOQueryReturningType {
 			return categoryByName(c.name).id
 		}
 		catch {
-			case e: Throwable => println("couldnt insert category " + c.name);
+			case e: Throwable => println("couldnt insert category " + c.name)
 		}
 
 		//just in case we got interrupted by another thread
@@ -116,7 +116,7 @@ class DAO extends DAOQueryReturningType {
 			return personId
 		}
 		catch {
-			case e: Throwable => println("couldnt insert person " + a.name);
+			case e: Throwable => println("couldnt insert person " + a.name)
 		}
 
 		//just in case we got interrupted by another thread
