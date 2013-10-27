@@ -20,7 +20,9 @@ class PersonLinkProcessor(val personId: Int) {
    * which this person is referencing
    */
   def process() {
+	  println("started processing of "+personId)
     outlinks.foreach(l => dao.insertPeopleConnectionID(person.id, l, person.id, person.lang))
+	  println("ended processing of "+personId)
   }
 
   /**
