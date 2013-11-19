@@ -16,8 +16,44 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
  * Date: 10/13/13
  * Time: 10:17 AM
  */
+class CategoryProcessor(val lang: String = "en") {
+	private val processed: mutable.Set[String] = Collections.synchronizedSet(new java.util.HashSet[String]())
+	private val exec = Executors.newFixedThreadPool(40)
 
-case class CategoriesAndPeople(categories: List[Category], people: List[Person])
+	def shutdown() {
+		exec.shutdown()
+	}
+
+	def setProcessed(category: Category) {
+		processed += category.name
+	}
+
+	def isProcessed(category: Category): Boolean = synchronized {
+		return processed.contains(category.name)
+	}
+
+	def addToQueue(elements: List[Category]) {
+		elements.foreach(addToQueue(_))
+	}
+
+	def addToQueue(element: Category) {
+		if (!isProcessed(element)) {
+			processed += element.name
+			exec.execute(new Worker(element))
+		}
+	}
+
+	def process(name: String) {
+		addToQueue(Category(name, lang)())
+	}
+
+	private class Worker(category: Category) extends Runnable {
+		def run() {
+			addToQueue(new CategoryContentProcessor(category).call().categories)
+		}
+	}
+
+}
 
 class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends Callable[CategoriesAndPeople] {
 	//automatically retry content-fetching
@@ -74,3 +110,6 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 		contains.filter(lowerCaseString.contains(_)).size > 0
 	}
 }
+
+
+case class CategoriesAndPeople(categories: List[Category], people: List[Person])

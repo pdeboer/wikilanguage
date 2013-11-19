@@ -1,8 +1,7 @@
 package edu.mit.cci.wikilanguage.main
 
-import edu.mit.cci.wikilanguage.model.active.WikiCategory
-import edu.mit.cci.wikilanguage.wiki.CategoryProcessor
 import edu.mit.cci.wikilanguage.db.DAO
+import edu.mit.cci.wikilanguage.wiki.CategoryProcessor
 
 /**
  * User: pdeboer

@@ -4,7 +4,6 @@ import org.junit.runner.RunWith
 import org.specs._
 import org.specs.runner.{JUnitSuiteRunner, JUnit}
 import edu.mit.cci.wikilanguage.model.{Category, Person}
-import edu.mit.cci.wikilanguage.db.DAO
 
 
 /**
