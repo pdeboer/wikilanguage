@@ -59,7 +59,7 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 		_contents
 	}
 
-	def fetchContents(tries: Int = 3): Elem = {
+	def fetchContents(tries: Int = 4): Elem = {
 		if (tries <= 0) return null
 
 		if(tries <3) println(tries+" try for "+category)
