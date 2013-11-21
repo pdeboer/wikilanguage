@@ -31,7 +31,6 @@ object U {
 	private var _httpClient: HttpClient = null
 	private val sourceEmail = "reobedp".reverse + "@mit.edu"
 
-	//for browser field
 	def httpClient(): HttpClient = {
 		if (_httpClient == null) {
 			val httpClientManager: MultiThreadedHttpConnectionManager = new MultiThreadedHttpConnectionManager()
