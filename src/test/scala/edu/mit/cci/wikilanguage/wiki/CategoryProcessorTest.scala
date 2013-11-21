@@ -29,12 +29,14 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 			ci.isPerson("Talk: blabla") must beFalse
 		}
 
+		/*
 		"queue management works" in {
 			val cat = Category("bla")()
 			cp.addToQueue(cat)
 
 			cp.isProcessed(cat) must beTrue
 		}
+		*/
 	}
 
 
@@ -44,14 +46,35 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 			w.isPerson("Elmar_Ledergerber") must beTrue
 		}
 
+		/*
 		"discover all the categories" in {
 			val cp = new CategoryContentProcessor(Category("Category:1944_births")(), insertDB=false)
 
 			val res = cp.call()
 			res.people.size > 7600 must beTrue
 			res.people.contains(Person("Elmar Ledergerber")()) must beTrue
+		}*/
+	}
+
+	"string container" should {
+		"filter strings correctly" in {
+			val cp = new CategoryContentProcessor(Category("")(), insertDB=false) {
+				def checkStringContainsPublic(str:String, contains:Array[String]):Boolean = {
+					return checkStringContains(str,contains)
+				}
+			}
+
+			cp.checkStringContainsPublic("mystring", Array("string")) must beTrue
+			cp.checkStringContainsPublic("asdf test asdf", Array("test")) must beTrue
+			cp.checkStringContainsPublic("asdf test asdf", Array("rr")) must beFalse
+			cp.checkStringContainsPublic("asdf test asdf", Array("rr", "asdf")) must beTrue
 		}
 	}
+
+	"20th century category" should {
+		"return the correct amount of subcategories" in {
+
+		}}
 }
 
 
