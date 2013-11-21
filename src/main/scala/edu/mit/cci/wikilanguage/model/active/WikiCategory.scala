@@ -33,36 +33,47 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 	require(category != null)
 
 	private var _contents: Array[String] = null
+	private val DEFAULT_TRIES_FETCHER = 5
 
 	def categoryClean = U.entityEscape(category)
 
 	def contents: Array[String] = {
 		if (_contents == null) {
 			//parse xml
-			val xml = fetchContents(3)
-			if (xml != null) {
-				val members = (xml \\ "cm").map(m => (m \ "@title").text)
-
-				_contents = Array() ++ members
+			val xmlAndMembers = fetchContents()
+			if (xmlAndMembers == null) _contents = Array.empty[String]
+			else {
+				_contents = xmlAndMembers.contents
 
 				//get other pages
-				if ((xml \\ "query-continue").length == 1) {
-					val newStart = xml \\ "query-continue" \ "categorymembers" \ "@cmstart"
-					_contents ++= new WikiCategory(category, newStart.text).contents
-				}
+				_contents ++= fetchRemainingPages(xmlAndMembers.xml)
 
 				_contents.filter(_ != null) //remove null values
-			} else {
-				_contents = Array.empty[String]
 			}
 		}
 		_contents
 	}
 
-	def fetchContents(tries: Int = 4): Elem = {
+	def fetchRemainingPages(xml: Elem): Array[String] = {
+		//get other pages
+		try {
+			if ((xml \\ "query-continue").length == 1) {
+				val newStart = xml \\ "query-continue" \ "categorymembers" \ "@cmstart"
+				return new WikiCategory(category, newStart.text).contents
+			}
+		}
+		catch {
+			case e: Exception => {
+				System.out.println("problems fetching rest of " + category + " " + e + " " + e.getMessage)
+			}
+		}
+		Array.empty[String] //fallback
+	}
+
+	def fetchContents(tries: Int = DEFAULT_TRIES_FETCHER): XMLAndContents = {
 		if (tries <= 0) return null
 
-		if(tries <3) println(tries+" try for "+category)
+		if (tries < DEFAULT_TRIES_FETCHER) println(tries + " try for " + category)
 
 		try {
 			val client = U.httpClient()
@@ -83,10 +94,13 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 			val members = (xml \\ "cm").map(m => (m \ "@title").text)
 			if (members.size == 0) return fetchContents(tries - 1)
 
-			return xml
+			return XMLAndContents(xml, Array.empty[String] ++ members)
 		}
 		catch {
 			case e: Throwable => return fetchContents(tries - 1)
 		}
 	}
+
+	private case class XMLAndContents(xml: Elem, contents: Array[String])
+
 }
