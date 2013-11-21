@@ -118,6 +118,11 @@
                             <goal>compile</goal>
                             <goal>testCompile</goal>
                         </goals>
+                        <configuration>
+                            <jvmArgs>
+                                <jvmArg>-Xmx10G</jvmArg>
+                            </jvmArgs>
+                        </configuration>
                         <!--
                         <configuration>
                             <args>

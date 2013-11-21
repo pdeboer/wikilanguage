@@ -70,6 +70,8 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 		Array.empty[String] //fallback
 	}
 
+	protected case class XMLAndContents(xml: Elem, contents: Array[String])
+
 	def fetchContents(tries: Int = DEFAULT_TRIES_FETCHER): XMLAndContents = {
 		if (tries <= 0) return null
 
@@ -100,7 +102,4 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 			case e: Throwable => return fetchContents(tries - 1)
 		}
 	}
-
-	private case class XMLAndContents(xml: Elem, contents: Array[String])
-
 }
