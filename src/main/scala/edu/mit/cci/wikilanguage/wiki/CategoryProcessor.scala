@@ -55,7 +55,7 @@ class CategoryProcessor(val lang: String = "en") {
 			categoriesAndPeople.people.foreach(p => {
 				val a = ArticleCache.get(p.name, p.lang)
 
-				dao.insertPerson(a, true) //implicit conversion allows for fetching of categories
+				dao.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
 			})
 		}
 	}
