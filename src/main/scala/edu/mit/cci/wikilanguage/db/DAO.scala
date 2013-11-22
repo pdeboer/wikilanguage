@@ -47,17 +47,22 @@ class DAO extends DAOQueryReturningType {
 	}
 
 	def personByName(name: String, fetchCategories: Boolean = false): Person = {
-		val data = typedQuery[Person](
-			"SELECT id, name, wiki_language FROM people WHERE name = ?",
-			p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
+		try {
+			val data = typedQuery[Person](
+				"SELECT id, name, wiki_language FROM people WHERE name = ?",
+				p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
 
-		val person = if (data.size > 0) data(0) else null
+			val person = if (data.size > 0) data(0) else null
 
-		if (fetchCategories && person != null) {
-			enrichPersonWithCategories(person)
+			if (fetchCategories && person != null) {
+				enrichPersonWithCategories(person)
+			}
+
+			person
 		}
-
-		person
+		catch {
+			case e:Throwable => null
+		}
 	}
 
 	def personById(id: Int, fetchCategories: Boolean = false): Person = {

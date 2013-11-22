@@ -49,7 +49,10 @@ class CategoryProcessor(val lang: String = "en") {
 
 	private class Worker(category: Category) extends Runnable {
 		def run() {
-			addToQueue(new CategoryContentProcessor(category).call().categories)
+			val categoriesAndPeople =new CategoryContentProcessor(category).call()
+			addToQueue(categoriesAndPeople.categories)
+			val dao = new DAO()
+			categoriesAndPeople.people.foreach(p => dao.insertPerson(p))
 		}
 	}
 
@@ -57,7 +60,7 @@ class CategoryProcessor(val lang: String = "en") {
 
 class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends Callable[CategoriesAndPeople] {
 	//automatically retry content-fetching
-	def categoryContents(maxTries: Int = 3): Array[String] = {
+	def categoryContents(maxTries: Int = 5): Array[String] = {
 		if (maxTries == 0) return Array.empty[String]
 
 		val wiki = new WikiCategory(cat.name, lang = cat.lang)
@@ -65,7 +68,6 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 	}
 
 	def call(): CategoriesAndPeople = {
-
 		val dao = new DAO()
 		if (insertDB) dao.insertCategory(cat)
 
@@ -81,8 +83,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 			}
 			else if (isPerson(c)) {
 				try {
-					val article = ArticleCache.get(c, cat.lang)
-					if (insertDB) dao.insertPerson(article, resolveCategories = false)
+					//if (insertDB) dao.insertPerson(article, resolveCategories = false)
 
 					retPeople ::= Person(c, cat.lang)()
 				}
@@ -101,7 +102,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 
 	def isPersonCategory(name: String): Boolean = {
 		!checkStringContains(name, Array("cleanup")) &&
-		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people")))
+		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people", "century")))
 	}
 
 	protected def checkStringContains(str: String, contains: Array[String]): Boolean = {
