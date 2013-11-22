@@ -52,7 +52,11 @@ class CategoryProcessor(val lang: String = "en") {
 			val categoriesAndPeople =new CategoryContentProcessor(category).call()
 			addToQueue(categoriesAndPeople.categories)
 			val dao = new DAO()
-			categoriesAndPeople.people.foreach(p => dao.insertPerson(p))
+			categoriesAndPeople.people.foreach(p => {
+				val a = ArticleCache.get(p.name, p.lang)
+
+				dao.insertPerson(a, true) //implicit conversion allows for fetching of categories
+			})
 		}
 	}
 
