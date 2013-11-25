@@ -13,5 +13,5 @@ object PersonDiscoverer extends App {
 	val processor = new CategoryProcessor()
 	processor.process("Category:People_by_century")
 	processor.process("Category:Living_people")
-	//processor.process("Category:Dead_people")
+	processor.process("Category:Dead_people")
 }

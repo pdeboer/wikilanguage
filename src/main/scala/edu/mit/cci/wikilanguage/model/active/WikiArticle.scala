@@ -51,16 +51,25 @@ class WikiArticle(val name: String, val lang: String = "en") {
   def categories = {
     if (_categories == null) {
       val client = U.httpClient()
-      val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
-        "format=xml&action=query&prop=categories&titles=" + nameCleaned + "&cllimit=500")
-      method.addRequestHeader("Accept-Charset", "utf-8")
-      client.executeMethod(method)
-      val data = method.getResponseBodyAsString
-      method.releaseConnection()
+      try {
+		  val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
+			"format=xml&action=query&prop=categories&titles=" + nameCleaned + "&cllimit=500")
+		  method.addRequestHeader("Accept-Charset", "utf-8")
+		  client.executeMethod(method)
+		  val data = method.getResponseBodyAsString
+		  method.releaseConnection()
 
-      val xml = XML.loadString(data)
-      val cat = (xml \\ "cl" \\ "@title").map(c => new WikiCategory(c.text, lang = lang))
-      _categories = Array() ++ cat
+		  val xml = XML.loadString(data)
+		  val cat = (xml \\ "cl" \\ "@title").map(c => new WikiCategory(c.text, lang = lang))
+		  _categories = Array() ++ cat
+	  }
+	  catch {
+		  case e:Exception => {
+			  println("Couldn't get contents of category "+name)
+			  e.printStackTrace(System.err)
+			  _categories = Array()
+		  }
+	  }
     }
     _categories
   }
