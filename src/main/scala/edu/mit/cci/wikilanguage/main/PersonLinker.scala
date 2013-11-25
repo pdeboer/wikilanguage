@@ -10,7 +10,7 @@ import edu.mit.cci.wikilanguage.wiki.PersonLinkProcessor
  * Time: 10:47 PM
  */
 object PersonLinker extends App {
-	val exec = Executors.newFixedThreadPool(50)
+	val exec = Executors.newFixedThreadPool(1)
 
 	val dao = new DAO()
 	dao.getAllPeopleIDs().foreach(id => {
