@@ -27,7 +27,7 @@ class WikiArticle(val name: String, val lang: String = "en") {
     if (_content == "") {
       val client = U.httpClient()
       //val method = new GetMethod("http://en.wikipedia.org/w/index.php?title=" + URLEncoder.encode(name) + "&action=raw")
-      val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + URLEncoder.encode(name))
+      val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + U.entityEscape(name))
       method.addRequestHeader("Accept-Charset", "utf-8")
       client.executeMethod(method)
 
