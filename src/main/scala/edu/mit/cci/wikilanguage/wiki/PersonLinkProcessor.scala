@@ -14,8 +14,7 @@ class PersonLinkProcessor(val personId: Int) {
 	val dao = new DAO()
 	val person = dao.personById(personId)
 
-	def urlStart = "http://" + person.lang + ".wikipedia.org/wiki/"
-	val urlStartShort = "/wiki/"
+	def urlStart = Array("http://" + person.lang + ".wikipedia.org/wiki/", "/wiki/", "/w/")
 
 	/**
 	 * insert link into database to all people that already exist in database
@@ -40,8 +39,9 @@ class PersonLinkProcessor(val personId: Int) {
 			val linkElements = U.convertJSoupToList(article.parsed.select("a"))
 			val cleanedList = linkElements.filter(a => loc(a) != null && loc(a).length > 0).map(loc(_))
 			val links = cleanedList.map(l => {
-				if(l.startsWith(urlStart)) l.substring(urlStart.length)
-				else if(l.startsWith(urlStartShort)) l.substring(urlStartShort.length)
+				val u = urlStart.find(l.startsWith(_))
+
+				if(!u.isEmpty) l.substring(u.get.length)
 				else null
 			})
 
@@ -54,6 +54,10 @@ class PersonLinkProcessor(val personId: Int) {
 			}
 		}
 
+	}
+
+	def likelyPersonOutlinks():List[String] = {
+		outlinks.filter(u => !u.contains(":") && !u.startsWith("index.php"))
 	}
 
 	private def loc(e:Element):String = e.attr("href")

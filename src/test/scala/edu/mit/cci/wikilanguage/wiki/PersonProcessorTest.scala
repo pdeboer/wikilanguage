@@ -11,15 +11,17 @@ import edu.mit.cci.util.U
 
 @RunWith(classOf[JUnitSuiteRunner])
 class PersonProcessorTest extends Specification with JUnit /*with ScalaCheck*/ {
-  "PersonProcessor" should {
-    "find outlinks for a basic use case" in {
-      //TODO test
-    }
-  }
+	"PersonProcessor" should {
+		"find outlinks for a basic use case" in {
+			val l = new PersonLinkProcessor(316173) //tom malone
+			val outlinks = l.likelyPersonOutlinks()
+			outlinks.size > 10 must	beTrue
+		}
+	}
 }
 
 object PersonProcessorTest {
-  def main(args: Array[String]) {
-    new PersonProcessorTest().main(args)
-  }
+	def main(args: Array[String]) {
+		new PersonProcessorTest().main(args)
+	}
 }
