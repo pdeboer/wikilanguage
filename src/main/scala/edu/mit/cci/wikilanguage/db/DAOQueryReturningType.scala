@@ -23,8 +23,13 @@ trait DAOQueryReturningType {
 
                   var res: List[T] = Nil
 
-                  if (rs.next()) {
-                    res ::= assembleListObject(rs)
+                  while (rs.next()) {
+                    try {
+						res ::= assembleListObject(rs)
+					}
+					catch {
+						case e:Throwable => e.printStackTrace()
+					}
                   }
 
                   return res

@@ -9,6 +9,6 @@ import edu.mit.cci.wikilanguage.model.active.WikiCategory
  * @author Patrick de Boer
  */
 object WikiLanguage extends App {
-  PersonDiscoverer.main(null)
-//	PersonLinker.main(null)
+	//PersonDiscoverer.main(null)
+	PersonLinker.main(null)
 }

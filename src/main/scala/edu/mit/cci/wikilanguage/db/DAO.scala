@@ -149,7 +149,8 @@ class DAO extends DAOQueryReturningType {
 	}
 
 	def getAllPeopleIDs(): List[Int] = {
-		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
+		val r = typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
+		r
 	}
 
 	def clean() {

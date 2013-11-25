@@ -10,42 +10,43 @@ import edu.mit.cci.util.U
  * Time: 10:47 PM
  */
 class PersonLinkProcessor(val personId: Int) {
-  val dao = new DAO()
-  val person = dao.personById(personId)
+	val dao = new DAO()
+	val person = dao.personById(personId)
 
-  def urlStart = "http://" + person.lang + ".wikipedia.org/wiki/"
+	def urlStart = "http://" + person.lang + ".wikipedia.org/wiki/"
 
-  /**
-   * insert link into database to all people that already exist in database
-   * which this person is referencing
-   */
-  def process() {
-	  println("started processing of "+personId)
-    outlinks.foreach(l => dao.insertPeopleConnectionID(person.id, l, person.id, person.lang))
-	  println("ended processing of "+personId)
-  }
+	/**
+	 * insert link into database to all people that already exist in database
+	 * which this person is referencing
+	 */
+	def process() {
+		println("started processing of " + personId)
+		outlinks.foreach(l =>
+			dao.insertPeopleConnectionID(person.id, l, person.id, person.lang))
+		println("ended processing of " + personId)
+	}
 
-  /**
-   * find names of all articles this article is referencing
-   * @return
-   */
-  def outlinks(): List[String] = {
-    try {
-      val article = new WikiArticle(person.name, person.lang)
+	/**
+	 * find names of all articles this article is referencing
+	 * @return
+	 */
+	def outlinks(): List[String] = {
+		try {
+			val article = new WikiArticle(person.name, person.lang)
 
-      //fetch all outgoing links of article and return their names
-      U.convertJSoupToList(article.parsed.select("a")).filter(a => {
-        val href = a.attr("href")
-        href != null && href.length > 0 && href.startsWith(urlStart)
-      }).map(a => a.attr("href").substring(urlStart.length))
-    }
-    catch {
-      case e: Exception => {
-        println("couldnt parse " + person.name)
-        List.empty[String]
-      }
-    }
+			//fetch all outgoing links of article and return their names
+			U.convertJSoupToList(article.parsed.select("a")).filter(a => {
+				val href = a.attr("href")
+				href != null && href.length > 0 && href.startsWith(urlStart)
+			}).map(a => a.attr("href").substring(urlStart.length))
+		}
+		catch {
+			case e: Exception => {
+				println("couldnt parse " + person.name)
+				List.empty[String]
+			}
+		}
 
-  }
+	}
 
 }

@@ -28,4 +28,5 @@ object PersonLinker extends App {
 			}
 		})
 	})
+	exec.shutdown()
 }
