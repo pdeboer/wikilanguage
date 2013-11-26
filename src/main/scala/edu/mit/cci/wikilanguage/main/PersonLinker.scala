@@ -3,6 +3,7 @@ package edu.mit.cci.wikilanguage.main
 import edu.mit.cci.wikilanguage.db.DAO
 import java.util.concurrent.Executors
 import edu.mit.cci.wikilanguage.wiki.PersonLinkProcessor
+import java.util.Random
 
 /**
  * User: pdeboer
@@ -10,13 +11,16 @@ import edu.mit.cci.wikilanguage.wiki.PersonLinkProcessor
  * Time: 10:47 PM
  */
 object PersonLinker extends App {
-	val exec = Executors.newFixedThreadPool(1)
+	val exec = Executors.newFixedThreadPool(50)
 
 	val dao = new DAO()
 	dao.getAllPeopleIDs().foreach(id => {
 		exec.submit(new Runnable {
 			def run() {
 				try {
+					//delay between 0 and 100 seconds
+					Thread.sleep((new Random().nextDouble() * 100000).asInstanceOf[Long])
+
 					new PersonLinkProcessor(id).process()
 				}
 				catch {

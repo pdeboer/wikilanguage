@@ -41,8 +41,9 @@ object U {
 			}
 
 			val hostConfig = new AcceptingHostConfiguration
-
 			params.setMaxConnectionsPerHost(hostConfig, 50)
+			params.setConnectionTimeout(1000*10) //10 seconds
+			params.setSoTimeout(1000*10)
 			httpClientManager.setParams(params)
 			_httpClient = new HttpClient(httpClientManager)
 			_httpClient.getParams().setParameter("http.useragent", "WikiLanguage 0.1 (Comparing people graph of different languages) "+sourceEmail)

@@ -18,17 +18,28 @@ class WikiArticle(val name: String, val lang: String = "en") {
 	private var _parsed: Element = null
 	private var _categories: Array[WikiCategory] = null
 
+	private var contentFetchTries = 0
+	private val MAX_CONTENT_FETCH_TRIES: Int = 3
+
+	private var categoryFetchTries = 0
+
 	def text: String = {
-		if (_content == "") {
-			val client = U.httpClient()
-			//val method = new GetMethod("http://en.wikipedia.org/w/index.php?title=" + URLEncoder.encode(name) + "&action=raw")
-			val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + nameCleaned)
-			method.addRequestHeader("Accept-Charset", "utf-8")
-			client.executeMethod(method)
+		if (_content == "" && contentFetchTries < MAX_CONTENT_FETCH_TRIES) {
+			contentFetchTries += 1
+			try {
+				val client = U.httpClient()
+				//val method = new GetMethod("http://en.wikipedia.org/w/index.php?title=" + URLEncoder.encode(name) + "&action=raw")
+				val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + nameCleaned)
+				method.addRequestHeader("Accept-Charset", "utf-8")
+				client.executeMethod(method)
 
-			_content = method.getResponseBodyAsString
+				_content = method.getResponseBodyAsString
 
-			method.releaseConnection()
+				method.releaseConnection()
+			}
+			catch {
+				case e: Throwable => println("couldn't fetch content of article " + lang + "." + name)
+			}
 		}
 		_content
 	}
@@ -44,9 +55,10 @@ class WikiArticle(val name: String, val lang: String = "en") {
 	}
 
 	def categories = {
-		if (_categories == null) {
-			val client = U.httpClient()
+		if (_categories == null && categoryFetchTries < 3) {
+			categoryFetchTries += 1
 			try {
+				val client = U.httpClient()
 				val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
 				  "format=xml&action=query&prop=categories&titles=" + nameCleaned + "&cllimit=500")
 				method.addRequestHeader("Accept-Charset", "utf-8")
@@ -59,10 +71,9 @@ class WikiArticle(val name: String, val lang: String = "en") {
 				_categories = Array() ++ cat
 			}
 			catch {
-				case e: Exception => {
+				case e: Throwable => {
 					println("Couldn't get contents of category " + name)
 					e.printStackTrace(System.err)
-					_categories = Array()
 				}
 			}
 		}
@@ -74,6 +85,9 @@ class WikiArticle(val name: String, val lang: String = "en") {
 	 * @return
 	 */
 	def outlinks(): List[String] = {
+		//try as many times to get text as possible
+		for(i <- 1 until MAX_CONTENT_FETCH_TRIES) text
+
 		try {
 			//fetch all outgoing links of article and return their names
 			val linkElements = U.convertJSoupToList(parsed.select("a"))
@@ -81,11 +95,11 @@ class WikiArticle(val name: String, val lang: String = "en") {
 			val links = cleanedList.map(l => {
 				val u = urlStart.find(l.startsWith(_))
 
-				if(!u.isEmpty) l.substring(u.get.length)
+				if (!u.isEmpty) l.substring(u.get.length)
 				else null
 			})
 
-			links.filterNot(_==null)
+			links.filterNot(_ == null)
 		}
 		catch {
 			case e: Exception => {
@@ -98,11 +112,11 @@ class WikiArticle(val name: String, val lang: String = "en") {
 
 	private def urlStart = Array("http://" + lang + ".wikipedia.org/wiki/", "/wiki/", "/w/")
 
-	def likelyPersonOutlinks():List[String] = {
+	def likelyPersonOutlinks(): List[String] = {
 		outlinks.filter(u => !u.contains(":") && !u.startsWith("index.php"))
 	}
 
-	private def loc(e:Element):String = e.attr("href")
+	private def loc(e: Element): String = e.attr("href")
 
 
 	def nameCleaned: String = U.entityEscape(name)
