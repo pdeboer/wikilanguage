@@ -24,7 +24,7 @@ class WikiCategoryTest extends Specification with JUnit /*with ScalaCheck*/ {
 
 		"be able to fetch contents of multi-page categories" in {
 			val wc = new WikiCategory("Category:19th-century_German_painters")
-			wc.contents.length mustEqual 501
+			wc.contents.length > 400 must beTrue
 		}
 	}
 

@@ -15,6 +15,7 @@ import edu.mit.cci.wikilanguage.model.{Category, Person}
  */
 @RunWith(classOf[JUnitSuiteRunner])
 class DAOTest  extends Specification with JUnit /*with ScalaCheck*/ {
+
   "DAO" should {
     val dao = new DAO
     dao.clean()
