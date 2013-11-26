@@ -5,6 +5,7 @@ import org.specs._
 import org.specs.runner.{JUnitSuiteRunner, JUnit}
 import edu.mit.cci.wikilanguage.model.active.WikiCategory
 import edu.mit.cci.util.U
+import edu.mit.cci.wiki.ArticleCache
 
 //import org.scalacheck.Gen
 
@@ -12,10 +13,8 @@ import edu.mit.cci.util.U
 @RunWith(classOf[JUnitSuiteRunner])
 class PersonProcessorTest extends Specification with JUnit /*with ScalaCheck*/ {
 	"PersonProcessor" should {
-		"find outlinks for a basic use case" in {
-			val l = new PersonLinkProcessor(316173) //tom malone
-			val outlinks = l.likelyPersonOutlinks()
-			outlinks.size > 10 must	beTrue
+		"nothing yet" in {
+
 		}
 	}
 }
