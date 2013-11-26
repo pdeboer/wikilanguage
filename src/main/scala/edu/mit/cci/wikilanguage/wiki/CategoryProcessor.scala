@@ -87,8 +87,6 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 			}
 			else if (isPerson(c)) {
 				try {
-					//if (insertDB) dao.insertPerson(article, resolveCategories = false)
-
 					retPeople ::= Person(c, cat.lang)()
 				}
 				catch {
