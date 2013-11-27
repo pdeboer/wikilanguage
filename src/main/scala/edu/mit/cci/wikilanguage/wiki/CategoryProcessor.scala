@@ -49,14 +49,16 @@ class CategoryProcessor(val lang: String = "en") {
 
 	private class Worker(category: Category) extends Runnable {
 		def run() {
-			val categoriesAndPeople =new CategoryContentProcessor(category).call()
+			val categoriesAndPeople = new CategoryContentProcessor(category).call()
 			addToQueue(categoriesAndPeople.categories)
 			val dao = new DAO()
 			categoriesAndPeople.people.foreach(p => {
-				val a = ArticleCache.get(p.name, p.lang)
-				a.textFetched //fetch content of said article to ease further processing
+				if (dao.personByName(p.name) == null) {
+					val a = ArticleCache.get(p.name, p.lang)
+					a.textFetched //fetch content of said article to ease further processing
 
-				dao.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
+					dao.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
+				}
 			})
 		}
 	}
