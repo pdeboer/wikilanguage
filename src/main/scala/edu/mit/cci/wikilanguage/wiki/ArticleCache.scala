@@ -10,7 +10,7 @@ import edu.mit.cci.wikilanguage.model.active.WikiArticle
  *         First created on 8/15/13 at 4:58 PM
  */
 object ArticleCache {
-	private val MAX_SIZE = 1000
+	private val MAX_SIZE = 10000
 
 	private val articles = new util.LinkedHashMap[String, WikiArticle](MAX_SIZE + 1, 1.1f, true) {
 		override def removeEldestEntry(eldest: Entry[String, WikiArticle]): Boolean = size() > MAX_SIZE

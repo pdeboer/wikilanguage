@@ -27,7 +27,7 @@ import scala.util.Random
       <cm pageid="40499851" ns="0" title="Gotthardt Kuehl" />
       <cm pageid="40492280" ns="0" title="Max Fleischer (painter)" />
 
- if too many members, use cmstart to retrieve next page
+ if members exceed fetch-limit, use cmstart to retrieve next page
  */
 class WikiCategory(val category: String, cmStart: String = null, val lang: String = "en") {
 	require(category != null)
@@ -85,7 +85,7 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 			// method.addRequestHeader("Accept-Charset", "utf-8")
 
 			//delay and get data
-			Thread.sleep((1000 * 10 * new java.util.Random().nextFloat()).asInstanceOf[Long])
+			//Thread.sleep((1000 * 10 * new java.util.Random().nextFloat()).asInstanceOf[Long])
 			client.executeMethod(method)
 
 			val data = method.getResponseBodyAsString()

@@ -11,7 +11,5 @@ import edu.mit.cci.wikilanguage.wiki.CategoryProcessor
 object PersonDiscoverer extends App {
 	new DAO().clean()
 	val processor = new CategoryProcessor()
-	processor.process("Category:People_by_century")
-	processor.process("Category:Living_people")
-	processor.process("Category:Dead_people")
+	processor.process("Category:People_categories_by_parameter")
 }

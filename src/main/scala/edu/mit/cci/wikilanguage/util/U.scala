@@ -4,7 +4,6 @@ import org.jsoup.select.Elements
 import org.jsoup.nodes.Element
 import org.apache.commons.httpclient.{HttpConnection, HostConfiguration, MultiThreadedHttpConnectionManager, HttpClient}
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams
-import edu.mit.cci.wikilanguage.util.URIEncoder
 import java.net.URI
 
 /**
@@ -24,6 +23,8 @@ object U {
 	}
 
 	def containsNumber(str: String) = str.replaceAll("[^0-9]", "").length > 0
+
+	def wikiUnify(name:String) = entityEscape(name.replaceAll("_"," "))
 
 	def entityEscape(in: String) =
 		new URI("http", "//mit.edu/" + in, null).toASCIIString.substring("http://mit.edu/".length)

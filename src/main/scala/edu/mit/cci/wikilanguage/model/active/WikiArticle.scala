@@ -23,7 +23,9 @@ class WikiArticle(val name: String, val lang: String = "en") {
 
 	private var categoryFetchTries = 0
 
-	def text: String = {
+	def text = _content
+
+	def textFetched: String = {
 		if (_content == "" && contentFetchTries < MAX_CONTENT_FETCH_TRIES) {
 			contentFetchTries += 1
 			try {
@@ -45,8 +47,8 @@ class WikiArticle(val name: String, val lang: String = "en") {
 	}
 
 	def parsed: Element = {
-		if (_parsed == null && text != null) {
-			val pcontent = Jsoup.parse(text).select("div#mw-content-text")
+		if (_parsed == null && textFetched != null) {
+			val pcontent = Jsoup.parse(textFetched).select("div#mw-content-text")
 			if (pcontent != null) {
 				_parsed = pcontent.first()
 			}
@@ -86,7 +88,7 @@ class WikiArticle(val name: String, val lang: String = "en") {
 	 */
 	def outlinks(): List[String] = {
 		//try as many times to get text as possible
-		for(i <- 1 until MAX_CONTENT_FETCH_TRIES) text
+		for(i <- 1 until MAX_CONTENT_FETCH_TRIES) textFetched
 
 		try {
 			//fetch all outgoing links of article and return their names

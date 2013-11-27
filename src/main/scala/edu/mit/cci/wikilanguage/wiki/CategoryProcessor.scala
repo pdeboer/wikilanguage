@@ -54,6 +54,7 @@ class CategoryProcessor(val lang: String = "en") {
 			val dao = new DAO()
 			categoriesAndPeople.people.foreach(p => {
 				val a = ArticleCache.get(p.name, p.lang)
+				a.text //fetch content of said article to ease further processing
 
 				dao.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
 			})
@@ -104,7 +105,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 
 	def isPersonCategory(name: String): Boolean = {
 		!checkStringContains(name, Array("cleanup")) &&
-		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people", "century")))
+		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people", "century", "children", "winner", "loser", "scientist", "men", "women", " BC ")))
 	}
 
 	protected def checkStringContains(str: String, contains: Array[String]): Boolean = {
