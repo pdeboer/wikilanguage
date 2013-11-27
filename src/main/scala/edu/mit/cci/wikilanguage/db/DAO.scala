@@ -10,7 +10,7 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
  * Date: 10/13/13
  * Time: 10:13 AM
  */
-class DAO extends DAOQueryReturningType {
+object DAO extends DAOQueryReturningType {
 
 
 	def insertCategory(c: Category): Int = {
@@ -61,7 +61,7 @@ class DAO extends DAOQueryReturningType {
 			person
 		}
 		catch {
-			case e:Throwable => null
+			case e: Throwable => null
 		}
 	}
 
@@ -92,7 +92,7 @@ class DAO extends DAOQueryReturningType {
 	}
 
 
-	def insertPerson(a: Person, resolveCategories:Boolean = false): Int = {
+	def insertPerson(a: Person, resolveCategories: Boolean = false): Int = {
 		try {
 			val person = personByName(a.name)
 			if (person != null) return person.id
@@ -106,7 +106,7 @@ class DAO extends DAOQueryReturningType {
 			val personId = personByName(a.name).id
 
 			//add content if necessary
-			if(a.content != null && a.content != "") {
+			if (a.content != null && a.content != "") {
 				autoCloseStmt("INSERT INTO peoplecontent (id, content) VALUES (?,?)") {
 					stmt =>
 						stmt.setInt(1, personId)
@@ -175,6 +175,9 @@ class DAO extends DAOQueryReturningType {
 			stmt => null
 		}
 		autoCloseStmt("TRUNCATE connections") {
+			stmt => null
+		}
+		autoCloseStmt("TRUNCATE peoplecontent") {
 			stmt => null
 		}
 	}

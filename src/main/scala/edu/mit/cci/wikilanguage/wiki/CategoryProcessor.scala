@@ -18,7 +18,7 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
  */
 class CategoryProcessor(val lang: String = "en") {
 	private val processed: mutable.Set[String] = Collections.synchronizedSet(new java.util.HashSet[String]())
-	private val exec = Executors.newFixedThreadPool(40)
+	private val exec = Executors.newFixedThreadPool(2)
 
 	def shutdown() {
 		exec.shutdown()
@@ -51,13 +51,12 @@ class CategoryProcessor(val lang: String = "en") {
 		def run() {
 			val categoriesAndPeople = new CategoryContentProcessor(category).call()
 			addToQueue(categoriesAndPeople.categories)
-			val dao = new DAO()
 			categoriesAndPeople.people.foreach(p => {
-				if (dao.personByName(p.name) == null) {
+				if (DAO.personByName(p.name) == null) {
 					val a = ArticleCache.get(p.name, p.lang)
 					a.textFetched //fetch content of said article to ease further processing
 
-					dao.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
+					DAO.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
 				}
 			})
 		}
@@ -75,8 +74,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 	}
 
 	def call(): CategoriesAndPeople = {
-		val dao = new DAO()
-		if (insertDB) dao.insertCategory(cat)
+		if (insertDB) DAO.insertCategory(cat)
 
 		var retCategories = List.empty[Category]
 		var retPeople = List.empty[Person]
@@ -98,7 +96,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 			}
 		})
 
-		println("finished analyzing category " + cat.name + " , found " + retCategories.length + " are to be processed")
+		println("finished category " + cat.name + " , found " + retCategories.length + " promising subcategories and "+retPeople.size+ " people")
 
 		CategoriesAndPeople(retCategories, retPeople)
 	}
@@ -107,7 +105,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 
 	def isPersonCategory(name: String): Boolean = {
 		!checkStringContains(name, Array("cleanup")) &&
-		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people", "century", "children", "winner", "loser", "scientist", "men", "women", " BC ")))
+		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people", "century", " BC ")))
 	}
 
 	protected def checkStringContains(str: String, contains: Array[String]): Boolean = {

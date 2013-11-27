@@ -12,8 +12,8 @@ import edu.mit.cci.wiki.ArticleCache
  * Time: 10:47 PM
  */
 class PersonLinkProcessor(val personId: Int) {
-	val dao = new DAO()
-	val person = dao.personById(personId)
+
+	val person = DAO.personById(personId)
 
 
 
@@ -25,7 +25,7 @@ class PersonLinkProcessor(val personId: Int) {
 		println("started processing of " + personId)
 		val article = ArticleCache.get(person.name, person.lang)
 		article.likelyPersonOutlinks().foreach(l =>
-			dao.insertPeopleConnectionID(person.id, l, person.id, person.lang))
+			DAO.insertPeopleConnectionID(person.id, l, person.id, person.lang))
 		println("ended processing of " + personId)
 	}
 

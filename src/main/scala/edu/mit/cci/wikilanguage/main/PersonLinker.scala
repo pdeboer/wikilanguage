@@ -13,8 +13,7 @@ import java.util.Random
 object PersonLinker extends App {
 	val exec = Executors.newFixedThreadPool(50)
 
-	val dao = new DAO()
-	dao.getAllPeopleIDs().foreach(id => {
+	DAO.getAllPeopleIDs().foreach(id => {
 		exec.submit(new Runnable {
 			def run() {
 				try {

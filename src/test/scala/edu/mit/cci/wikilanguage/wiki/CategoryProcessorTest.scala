@@ -46,6 +46,13 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 			w.isPerson("Elmar_Ledergerber") must beTrue
 		}
 
+		"discover all people in possibly living category" in {
+			val cp = new CategoryContentProcessor(Category("Category:Possibly_living_people")(), insertDB=false)
+			val res = cp.call()
+
+			res.people.size > 2000 must beTrue
+		}
+
 		/*
 		"discover all the categories" in {
 			val cp = new CategoryContentProcessor(Category("Category:1944_births")(), insertDB=false)

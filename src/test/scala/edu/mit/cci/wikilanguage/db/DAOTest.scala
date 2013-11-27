@@ -17,16 +17,15 @@ import edu.mit.cci.wikilanguage.model.{Category, Person}
 class DAOTest  extends Specification with JUnit /*with ScalaCheck*/ {
 
   "DAO" should {
-    val dao = new DAO
-    dao.clean()
+    DAO.clean()
     val category = new Category("category", lang="de")()
     val person = new Person("person", lang="de")()
 
     "be able to add new category" in {
 
-      val cId = dao.insertCategory(category)
+      val cId = DAO.insertCategory(category)
 
-      val catDB = dao.categoryByName(category.name)
+      val catDB = DAO.categoryByName(category.name)
 
       catDB.id mustEqual cId
       catDB.name mustEqual category.name
@@ -36,9 +35,9 @@ class DAOTest  extends Specification with JUnit /*with ScalaCheck*/ {
 
     "be able to add a new person" in {
 
-      val pId = dao.insertPerson(person)
+      val pId = DAO.insertPerson(person)
 
-      val pDB = dao.personByName(person.name)
+      val pDB = DAO.personByName(person.name)
 
       pDB.id mustEqual pId
       pDB.name mustEqual person.name
@@ -49,9 +48,9 @@ class DAOTest  extends Specification with JUnit /*with ScalaCheck*/ {
     "be able to add categories for people" in {
       person.categories = person.categories :+ category
 
-      dao.insertPerson(person)
+      DAO.insertPerson(person)
 
-      val p2 = dao.personByName(person.name, true)
+      val p2 = DAO.personByName(person.name, true)
 
       person.categories(0) mustEqual p2.categories(0)
     }
