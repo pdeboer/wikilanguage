@@ -24,7 +24,7 @@ object U {
 
 	def containsNumber(str: String) = str.replaceAll("[^0-9]", "").length > 0
 
-	def wikiUnify(name:String) = entityEscape(name.replaceAll("_"," "))
+	def wikiUnify(name:String) = entityEscape(name.replaceAll(" ","_"))
 
 	def entityEscape(in: String) =
 		new URI("http", "//mit.edu/" + in, null).toASCIIString.substring("http://mit.edu/".length)

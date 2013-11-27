@@ -54,7 +54,7 @@ class CategoryProcessor(val lang: String = "en") {
 			val dao = new DAO()
 			categoriesAndPeople.people.foreach(p => {
 				val a = ArticleCache.get(p.name, p.lang)
-				a.text //fetch content of said article to ease further processing
+				a.textFetched //fetch content of said article to ease further processing
 
 				dao.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
 			})

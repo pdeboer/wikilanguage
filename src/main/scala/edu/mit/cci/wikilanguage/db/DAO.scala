@@ -97,14 +97,22 @@ class DAO extends DAOQueryReturningType {
 			val person = personByName(a.name)
 			if (person != null) return person.id
 
-			autoCloseStmt("INSERT INTO people (name, wiki_language, content) VALUES (?,?,?)") {
+			autoCloseStmt("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
 				stmt =>
 					stmt.setString(1, a.name)
 					stmt.setString(2, a.lang)
-					stmt.setString(3, a.content)
 			}
 
 			val personId = personByName(a.name).id
+
+			//add content if necessary
+			if(a.content != null && a.content != "") {
+				autoCloseStmt("INSERT INTO peoplecontent (id, content) VALUES (?,?)") {
+					stmt =>
+						stmt.setInt(1, personId)
+						stmt.setString(2, a.content)
+				}
+			}
 
 			if (resolveCategories && a.categories != null) {
 				//insert super-categories
@@ -122,7 +130,10 @@ class DAO extends DAOQueryReturningType {
 			return personId
 		}
 		catch {
-			case e: Throwable => println("couldnt insert person " + a.name)
+			case e: Throwable => {
+				e.printStackTrace()
+				println("couldnt insert person " + a.name)
+			}
 		}
 
 		//just in case we got interrupted by another thread
