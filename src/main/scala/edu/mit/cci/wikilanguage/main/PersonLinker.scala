@@ -19,7 +19,7 @@ object PersonLinker extends App {
 			def run() {
 				try {
 					//delay between 0 and 100 seconds
-					Thread.sleep((new Random().nextDouble() * 100000).asInstanceOf[Long])
+					//Thread.sleep((new Random().nextDouble() * 100000).asInstanceOf[Long])
 
 					new PersonLinkProcessor(id).process()
 				}

@@ -33,7 +33,7 @@ object Connector {
 
   private def getNewConnection() = {
     Class.forName("com.mysql.jdbc.Driver")
-    val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
+    val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage2?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
 
     connections.synchronized {
       connections += connection
