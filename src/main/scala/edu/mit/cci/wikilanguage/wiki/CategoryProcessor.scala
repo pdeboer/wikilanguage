@@ -18,7 +18,7 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
  */
 class CategoryProcessor(val lang: String = "en") {
 	private val processed: mutable.Set[String] = Collections.synchronizedSet(new java.util.HashSet[String]())
-	private val exec = Executors.newFixedThreadPool(2)
+	private val exec = Executors.newFixedThreadPool(50)
 
 	def shutdown() {
 		exec.shutdown()

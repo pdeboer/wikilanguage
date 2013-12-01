@@ -91,6 +91,14 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
+	def personContentById(id: Int): String = {
+		val c = typedQuery[String](
+			"""
+			  SELECT content FROM peoplecontent WHERE id = ?
+			""", _.setInt(1, id), _.getString(1))
+		if (c != null && c.size > 0) c(0) else null
+	}
+
 
 	def insertPerson(a: Person, resolveCategories: Boolean = false): Int = {
 		try {

@@ -13,7 +13,7 @@ import scala.xml.XML
  *
  * rich class that fetches data from wikipedia if needed. starts off sparse
  */
-class WikiArticle(val name: String, val lang: String = "en", private var _content: String = "") {
+class WikiArticle(val name: String, val lang: String = "en", var text: String = "") {
 	private var _parsed: Element = null
 	private var _categories: Array[WikiCategory] = null
 
@@ -22,10 +22,8 @@ class WikiArticle(val name: String, val lang: String = "en", private var _conten
 
 	private var categoryFetchTries = 0
 
-	def text = _content
-
 	def textFetched: String = {
-		if (_content == "" && contentFetchTries < MAX_CONTENT_FETCH_TRIES) {
+		if (text == "" && contentFetchTries < MAX_CONTENT_FETCH_TRIES) {
 			contentFetchTries += 1
 			try {
 				val client = U.httpClient()
@@ -34,7 +32,7 @@ class WikiArticle(val name: String, val lang: String = "en", private var _conten
 				method.addRequestHeader("Accept-Charset", "utf-8")
 				client.executeMethod(method)
 
-				_content = method.getResponseBodyAsString
+				text = method.getResponseBodyAsString
 
 				method.releaseConnection()
 			}
@@ -42,7 +40,7 @@ class WikiArticle(val name: String, val lang: String = "en", private var _conten
 				case e: Throwable => println("couldn't fetch content of article " + lang + "." + name)
 			}
 		}
-		_content
+		text
 	}
 
 	def parsed: Element = {
