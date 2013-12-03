@@ -101,17 +101,11 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 		CategoriesAndPeople(retCategories, retPeople)
 	}
 
-	def isPerson(name: String) = !checkStringContains(name, Array(":", "list", "wikipedia"))
+	def isPerson(name: String) = !U.checkStringContains(name, Array(":", "list", "wikipedia"))
 
 	def isPersonCategory(name: String): Boolean = {
-		!checkStringContains(name, Array("cleanup")) &&
-		  (U.containsNumber(name) || checkStringContains(name, Array("birth", "death", "person", "people", "century", " BC ")))
-	}
-
-	protected def checkStringContains(str: String, contains: Array[String]): Boolean = {
-		val lowerCaseString = str.toLowerCase()
-
-		contains.filter(lowerCaseString.contains(_)).size > 0
+		!U.checkStringContains(name, Array("cleanup")) &&
+		  (U.containsNumber(name) || U.checkStringContains(name, Array("birth", "death", "person", "people", "century", " BC ")))
 	}
 }
 

@@ -22,12 +22,20 @@ object U {
 		ret
 	}
 
-	def containsNumber(str: String) = str.replaceAll("[^0-9]", "").length > 0
+	def containsNumber(str: String) = getNumbers(str).length > 0
+
+	def getNumbers(str:String )= str.replaceAll("[^0-9]","")
 
 	def wikiUnify(name:String) = entityEscape(name.replaceAll(" ","_"))
 
 	def entityEscape(in: String) =
 		new URI("http", "//mit.edu/" + in, null).toASCIIString.substring("http://mit.edu/".length)
+
+	def checkStringContains(str: String, contains: Array[String]): Boolean = {
+		val lowerCaseString = str.toLowerCase()
+
+		contains.filter(lowerCaseString.contains(_)).size > 0
+	}
 
 	private var _httpClient: HttpClient = null
 	private val sourceEmail = "reobedp".reverse + "@mit.edu"

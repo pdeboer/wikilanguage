@@ -168,6 +168,11 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
+	def getPersonOutlinks(sourcePersonId:Int):List[Int] = {
+		typedQuery[Int]("SELECT person_to FROM connections WHERE person_from = ?",
+			_.setInt(1, sourcePersonId), _.getInt(1))
+	}
+
 	def getAllPeopleIDs(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
 	}
