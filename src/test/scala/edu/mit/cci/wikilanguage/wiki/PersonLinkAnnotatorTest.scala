@@ -20,8 +20,8 @@ class PersonLinkAnnotatorTest extends Specification with JUnit /*with ScalaCheck
 			val p2 = Person("t2")(categories = Array(Category("Category:1962_births")(), Category("Category:2000_deaths")()))
 
 			val pp = new PersonLinkTimestampDeterminer(p1)
-			pp.commonWindow(p2).from == 1962 must beTrue
-			pp.commonWindow(p2).to == 1990 must beTrue
+			sdf.format(pp.commonWindow(p2).from) == "1962 AD" must beTrue
+			sdf.format(pp.commonWindow(p2).to) == "1990 AD" must beTrue
 		}
 
 		"identify a window when one death is undefined" in {
@@ -29,8 +29,35 @@ class PersonLinkAnnotatorTest extends Specification with JUnit /*with ScalaCheck
 			val p2 = Person("t2")(categories = Array(Category("Category:1962_births")()))
 
 			val pp = new PersonLinkTimestampDeterminer(p1)
-			pp.commonWindow(p2).from == 1962 must beTrue
-			pp.commonWindow(p2).to == 1990 must beTrue
+			sdf.format(pp.commonWindow(p2).from) == "1962 AD" must beTrue
+			sdf.format(pp.commonWindow(p2).to) == "1990 AD" must beTrue
+		}
+
+		"identify a window when both deaths are undefined" in {
+			val p1 = Person("t1")(categories = Array(Category("Category:1960_births")()))
+			val p2 = Person("t2")(categories = Array(Category("Category:1962_births")()))
+
+			val pp = new PersonLinkTimestampDeterminer(p1)
+			sdf.format(pp.commonWindow(p2).from) == "1962 AD" must beTrue
+			pp.commonWindow(p2).to must beNull
+		}
+
+		"identify a window when both births are undefined" in {
+			val p1 = Person("t1")(categories = Array(Category("Category:1960_deaths")()))
+			val p2 = Person("t2")(categories = Array(Category("Category:1962_deaths")()))
+
+			val pp = new PersonLinkTimestampDeterminer(p1)
+			pp.commonWindow(p2).from must beNull
+			sdf.format(pp.commonWindow(p2).to) == "1960 AD" must beTrue
+		}
+
+		"identify a window when everything is undefined" in {
+			val p1 = Person("t1")(categories = Array())
+			val p2 = Person("t2")(categories = Array())
+
+			val pp = new PersonLinkTimestampDeterminer(p1)
+			pp.commonWindow(p2).from must beNull
+			pp.commonWindow(p2).to must beNull
 		}
 	}
 
