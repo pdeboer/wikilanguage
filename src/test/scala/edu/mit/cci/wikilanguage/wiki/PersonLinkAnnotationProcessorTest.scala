@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 
 
 @RunWith(classOf[JUnitSuiteRunner])
-class PersonLinkAnnotatorTest extends Specification with JUnit /*with ScalaCheck*/ {
+class PersonLinkAnnotationProcessorTest extends Specification with JUnit /*with ScalaCheck*/ {
 	val sdf = new SimpleDateFormat("yyyy G")
 
 	"PersonLinkTimestampDeterminer's commonWindow function " should {
@@ -128,8 +128,8 @@ class PersonLinkAnnotatorTest extends Specification with JUnit /*with ScalaCheck
 	}
 }
 
-object PersonLinkAnnotatorTest {
+object PersonLinkAnnotationProcessorTest {
 	def main(args: Array[String]) {
-		new PersonLinkAnnotatorTest().main(args)
+		new PersonLinkAnnotationProcessorTest().main(args)
 	}
 }

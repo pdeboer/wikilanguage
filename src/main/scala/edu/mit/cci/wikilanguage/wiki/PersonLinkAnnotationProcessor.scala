@@ -10,16 +10,21 @@ import edu.mit.cci.wikilanguage.db.DAO
  * @author pdeboer
  *         First created on 03/12/13 at 17:26
  */
-class PersonLinkAnnotator {
+class PersonLinkAnnotationProcessor {
 	def processPerson(id: Int) {
-		val source = DAO.personById(id)
+		val source = DAO.personById(id, true)
 		val sourceTimestamps = new PersonLinkTimestampDeterminer(source)
 
 		DAO.getPersonOutlinks(id).foreach(t => {
-			val target = DAO.personById(t)
+			val target = DAO.personById(t.personToId, true)
+			val window = sourceTimestamps.commonWindow(target)
 
-
+			if(window.from!=null || window.to!=null) {
+				DAO.updatePeopleConnection(t.id, window.from, window.to)
+			}
 		})
+
+		println("Processed Person "+id)
 	}
 }
 

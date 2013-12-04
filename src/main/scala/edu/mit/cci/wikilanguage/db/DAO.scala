@@ -4,6 +4,8 @@ import edu.mit.cci.db.{Connector, DAOQueryReturningType}
 import Connector.autoCloseStmt
 import java.sql.ResultSet
 import edu.mit.cci.wikilanguage.model.{Person, Category}
+import java.util.Date
+import java.sql
 
 /**
  * User: pdeboer
@@ -85,7 +87,7 @@ object DAO extends DAOQueryReturningType {
 				"""
           SELECT c.id, c.name, c.wiki_language
           FROM categories c INNER JOIN people2categories p2c ON c.id = p2c.category
-          WHERE c.id = ?
+          WHERE p2c.person = ?
 				""", p => p.setInt(1, person.id), r => getCategoryWithDefaultResultSet(r))
 			person.categories ++= categories
 		}
@@ -168,10 +170,31 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	def getPersonOutlinks(sourcePersonId:Int):List[Int] = {
-		typedQuery[Int]("SELECT person_to FROM connections WHERE person_from = ?",
-			_.setInt(1, sourcePersonId), _.getInt(1))
+	def updatePeopleConnection(connectionId:Int, fromDate:Date, toDate:Date):Boolean = {
+		try {
+			autoCloseStmt("UPDATE connections SET date_from=?, date_to=? WHERE id=?") {
+				stmt =>
+					stmt.setDate(1, if(fromDate == null) null else new sql.Date(fromDate.getTime))
+					stmt.setDate(2, if(toDate == null) null else new sql.Date(toDate.getTime))
+					stmt.setInt(3, connectionId)
+			}
+			true
+		}
+		catch {
+			case e:Throwable => {
+				e.printStackTrace()
+				println("couldnt update connection "+connectionId)
+				false
+			}
+		}
 	}
+
+	def getPersonOutlinks(sourcePersonId:Int):List[PersonOutlink] = {
+		val p = typedQuery[PersonOutlink]("SELECT id, person_to FROM connections WHERE person_from = ?",
+			_.setInt(1, sourcePersonId), o => PersonOutlink(o.getInt(1), o.getInt(2)))
+		p
+	}
+	case class PersonOutlink (id:Int, personToId:Int)
 
 	def getAllPeopleIDs(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
