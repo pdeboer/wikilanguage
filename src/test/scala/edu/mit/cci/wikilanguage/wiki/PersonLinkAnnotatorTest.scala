@@ -14,6 +14,26 @@ import java.text.SimpleDateFormat
 class PersonLinkAnnotatorTest extends Specification with JUnit /*with ScalaCheck*/ {
 	val sdf = new SimpleDateFormat("yyyy G")
 
+	"PersonLinkTimestampDeterminer's commonWindow function " should {
+		"identify a window when both are defined" in {
+			val p1 = Person("t1")(categories = Array(Category("Category:1960_births")(), Category("Category:1990_deaths")()))
+			val p2 = Person("t2")(categories = Array(Category("Category:1962_births")(), Category("Category:2000_deaths")()))
+
+			val pp = new PersonLinkTimestampDeterminer(p1)
+			pp.commonWindow(p2).from == 1962 must beTrue
+			pp.commonWindow(p2).to == 1990 must beTrue
+		}
+
+		"identify a window when one death is undefined" in {
+			val p1 = Person("t1")(categories = Array(Category("Category:1960_births")(), Category("Category:1990_deaths")()))
+			val p2 = Person("t2")(categories = Array(Category("Category:1962_births")()))
+
+			val pp = new PersonLinkTimestampDeterminer(p1)
+			pp.commonWindow(p2).from == 1962 must beTrue
+			pp.commonWindow(p2).to == 1990 must beTrue
+		}
+	}
+
 	"PersonLinkTimestampDeterminer's determine function " should {
 		"be able to find easy from-time" in {
 			val p = Person("test")()
