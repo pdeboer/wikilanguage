@@ -2,8 +2,9 @@ package edu.mit.cci.wikilanguage.wiki
 
 import edu.mit.cci.wikilanguage.db.DAO
 import java.util.{Calendar, Date}
-import edu.mit.cci.wikilanguage.model.Category
+import edu.mit.cci.wikilanguage.model.{Person, Category}
 import edu.mit.cci.util.U
+import java.text.SimpleDateFormat
 
 /**
  * @author pdeboer
@@ -15,10 +16,8 @@ class PersonLinkAnnotator {
 	}
 }
 
-class PersonLinkTimestampDeterminer(val personId: Int) {
-	val person = DAO.personById(personId, fetchCategories = true)
-
-	def outlinks = DAO.getPersonOutlinks(personId)
+class PersonLinkTimestampDeterminer(val person:Person) {
+	def outlinks = DAO.getPersonOutlinks(person.id)
 
 	def determine = {
 		val targetDates = person.categories.map(c => {
@@ -30,8 +29,8 @@ class PersonLinkTimestampDeterminer(val personId: Int) {
 		}).filter(_ != null)
 
 		if (targetDates.size > 0) {
-			val minBirth = targetDates.min(Ordering.by(_.from)).from
-			val maxDeath = targetDates.max(Ordering.by(_.to)).to
+			val minBirth = targetDates.minBy(_.from).from
+			val maxDeath = targetDates.maxBy(_.to).to
 
 			FromTo(minBirth, maxDeath)
 		} else FromTo(null, null)
@@ -43,21 +42,24 @@ class PersonLinkTimestampDeterminer(val personId: Int) {
 	 * @return
 	 */
 	def dateFromCategory(c: Category): Date = {
-		if (U.containsNumber(c.name) && U.checkStringContains(c.name, Array("birth", "death"))) {
-			val numberOfCharacters = "birth".length //luckily, birth and death have the same length
+		try {
+			if (U.containsNumber(c.name) && U.checkStringContains(c.name, Array("births", "deaths"))) {
+				val numberOfCharacters = "births".length //luckily, birth and death have the same length
 
-			val withoutBeginning = c.name.substring("Category:".length)
-			val withoutEnding = withoutBeginning.substring(0, withoutBeginning.length - numberOfCharacters)
+				val withoutBeginning = c.name.substring("Category:".length)
+				val withoutEnding = withoutBeginning.substring(0, withoutBeginning.length - numberOfCharacters)
 
-			val isBC = withoutEnding.contains("BC")
+				val isBC = withoutEnding.contains("BC")
 
-			val candidate = new Date(
-				U.getNumbers(withoutEnding).toInt * (if(withoutEnding.contains("century")) 100 else 1),
-				0, 0 )
+				val candidateYear =
+					U.getNumbers(withoutEnding).toInt * (if (withoutEnding.contains("century")) 100 else 1)
 
-			if(isBC) new Date(candidate.getYear * -1, candidate.getMonth, candidate.getDay)
-			else candidate
-		} else null
+				new SimpleDateFormat("yyyy G").parse(candidateYear + (if (isBC) " BC" else " AD"))
+			} else null
+		}
+		catch {
+			case e:Throwable => null
+		}
 	}
 
 }
