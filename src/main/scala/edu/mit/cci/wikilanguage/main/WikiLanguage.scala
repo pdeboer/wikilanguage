@@ -12,6 +12,5 @@ import edu.mit.cci.wikilanguage.wiki.PersonLinkAnnotationProcessor
 object WikiLanguage extends App {
 	//PersonDiscoverer.main(null)
 	//PersonLinker.main(null)
-
-	new PersonLinkAnnotationProcessor().processPerson(25)
+	PersonLinkAnnotator.main(null)
 }
