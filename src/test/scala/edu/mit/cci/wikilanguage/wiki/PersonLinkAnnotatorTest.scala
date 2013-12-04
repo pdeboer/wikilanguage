@@ -12,15 +12,48 @@ import java.text.SimpleDateFormat
 
 @RunWith(classOf[JUnitSuiteRunner])
 class PersonLinkAnnotatorTest extends Specification with JUnit /*with ScalaCheck*/ {
+	val sdf = new SimpleDateFormat("yyyy G")
+
 	"PersonLinkTimestampDeterminer's determine function " should {
 		"be able to find easy from-time" in {
-			???
+			val p = Person("test")()
+			p.categories = Array( Category("Category:1990_births")(), Category("asbasbd")() )
+
+			val d = new PersonLinkTimestampDeterminer(p)
+			sdf.format(d.determine.from) == "1990 AD" must beTrue
+			d.determine.to must beNull
+		}
+
+		"be able to find easy to-time" in {
+			val p = Person("test")()
+			p.categories = Array( Category("Category:1990_deaths")(), Category("asbasbd")() )
+
+			val d = new PersonLinkTimestampDeterminer(p)
+			sdf.format(d.determine.to) == "1990 AD" must beTrue
+			d.determine.from must beNull
+		}
+
+		"be able to find easy from-to-time" in {
+			val p = Person("test")()
+			p.categories = Array( Category("Category:1990_deaths")(), Category("Category:1970_births")() )
+
+			val d = new PersonLinkTimestampDeterminer(p)
+			sdf.format(d.determine.to) == "1990 AD" must beTrue
+			sdf.format(d.determine.from) == "1970 AD" must beTrue
+		}
+
+		"be able to work with multiple dates (use first birth and last death)" in {
+			val p = Person("test")()
+			p.categories = Array( Category("Category:1990_deaths")(),Category("Category:1987_deaths")(), Category("Category:1970_births")(), Category("Category:1977_births")() )
+
+			val d = new PersonLinkTimestampDeterminer(p)
+			sdf.format(d.determine.to) == "1990 AD" must beTrue
+			sdf.format(d.determine.from) == "1970 AD" must beTrue
 		}
 	}
 
 	"PersonLinkTimestampDeterminer's dateFromCategory function " should {
 		val p = new PersonLinkTimestampDeterminer(null)
-		val sdf = new SimpleDateFormat("yyyy G")
 
 		"be able to extract a basic date from birth year" in {
 			sdf.format(p.dateFromCategory(Category("Category:1990_births")())) == "1990 AD" must beTrue

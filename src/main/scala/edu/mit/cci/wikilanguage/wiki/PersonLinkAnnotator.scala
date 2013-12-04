@@ -29,8 +29,16 @@ class PersonLinkTimestampDeterminer(val person:Person) {
 		}).filter(_ != null)
 
 		if (targetDates.size > 0) {
-			val minBirth = targetDates.minBy(_.from).from
-			val maxDeath = targetDates.maxBy(_.to).to
+			//function that returns the smaller of the given dates. if mul=-1, it returns the greater one
+			val smallerDate = (d1:Date, d2:Date, mul:Int) => if(d1.compareTo(d2) * mul < 0) d1 else d2
+
+			//smallest birth-year
+			val minBirth:Date = targetDates.foldLeft[Date](null)( (r,c) =>
+				if(c.from == null) r else if(r==null) c.from else smallerDate(r,c.from,1)  )
+
+			//greatest death-year
+			val maxDeath:Date = targetDates.foldLeft[Date](null)( (r,c) =>
+				if(c.to == null) r else if(r==null) c.to else smallerDate(r,c.to,-1)  )
 
 			FromTo(minBirth, maxDeath)
 		} else FromTo(null, null)
