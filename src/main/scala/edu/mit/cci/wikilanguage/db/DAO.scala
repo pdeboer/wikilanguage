@@ -171,40 +171,41 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	def updatePeopleConnection(connectionId:Int, fromDate:Date, toDate:Date):Boolean = {
+	def updatePeopleConnection(connectionId: Int, fromDate: Date, toDate: Date): Boolean = {
 		try {
-			val year = (d:Date) => {
-				if(d == null) None else {
-					val sdf = new SimpleDateFormat("G")
-					val mul = if(sdf.format(d) == "BC") -1 else 1
+			val year = (d: Date) => {
+				if (d == null) None
+				else {
+					val mul = if (new SimpleDateFormat("G").format(d) == "BC") -1 else 1
 
-					Some(d.getYear * mul)
+					Some("" + (new SimpleDateFormat("yyyy").format(d).toInt * mul))
 				}
 			}
 
 			autoCloseStmt("UPDATE connections SET year_from=?, year_to=? WHERE id=?") {
 				stmt =>
-					stmt.setString(1, year(fromDate).getOrElse(null)+"")
-					stmt.setString(2, year(toDate).getOrElse(null)+"")
+					stmt.setString(1, year(fromDate).getOrElse(null))
+					stmt.setString(2, year(toDate).getOrElse(null))
 					stmt.setInt(3, connectionId)
 			}
 			true
 		}
 		catch {
-			case e:Throwable => {
+			case e: Throwable => {
 				e.printStackTrace()
-				println("couldnt update connection "+connectionId)
+				println("couldnt update connection " + connectionId)
 				false
 			}
 		}
 	}
 
-	def getPersonOutlinks(sourcePersonId:Int):List[PersonOutlink] = {
+	def getPersonOutlinks(sourcePersonId: Int): List[PersonOutlink] = {
 		val p = typedQuery[PersonOutlink]("SELECT id, person_to FROM connections WHERE person_from = ?",
 			_.setInt(1, sourcePersonId), o => PersonOutlink(o.getInt(1), o.getInt(2)))
 		p
 	}
-	case class PersonOutlink (id:Int, personToId:Int)
+
+	case class PersonOutlink(id: Int, personToId: Int)
 
 	def getAllPeopleIDs(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))

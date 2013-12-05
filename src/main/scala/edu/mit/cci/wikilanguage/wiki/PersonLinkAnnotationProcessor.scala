@@ -32,8 +32,8 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	def commonWindow(other: Person) = {
 		val plt = new PersonLinkTimestampDeterminer(other)
 
-		val otherDet = plt.determine
 		val meDet = determine
+		val otherDet = plt.determine
 
 
 		val ret = FromTo(smallerDate(otherDet.from, meDet.from, -1), smallerDate(otherDet.to, meDet.to))
@@ -43,13 +43,27 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	}
 
 	def determine = {
-		val targetDates = person.categories.map(c => {
+		var targetDates = person.categories.map(c => {
 			val date = dateFromCategory(c)
+
 			if (date == null) null
 			else if (c.name.contains("birth")) FromTo(date, null)
 			else if (c.name.contains("death")) FromTo(null, date)
 			else null
 		}).filter(_ != null)
+
+		//in case we have no birth - death date. check for other heuristics
+		if (targetDates.size == 0) {
+			val ONE_CENTURY = 1000l * 60 * 60 * 24 * 365 * 100
+			targetDates = person.categories.map(c => {
+				val date = dateFromCategory(c)
+
+				if (date == null) null
+				//for BC people
+				else if (c.name.contains("century") && c.name.contains("BC")) FromTo(date, new Date(date.getTime + ONE_CENTURY))
+				else null
+			}).filter(_ != null)
+		}
 
 		if (targetDates.size > 0) {
 
@@ -66,9 +80,11 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	}
 
 	//function that returns the smaller of the given dates. if mul=-1, it returns the greater one
-	private def smallerDate(d1: Date, d2: Date, mul: Int = 1) = if (d1 == null) d2
-	else if (d2 == null) d1
-	else if (d1.compareTo(d2) * mul <= 0) d1 else d2
+	private def smallerDate(d1: Date, d2: Date, mul: Int = 1) = {
+		if (d1 == null) d2
+		else if (d2 == null) d1
+		else if (d1.compareTo(d2) * mul <= 0) d1 else d2
+	}
 
 	/**
 	 * works only for people that currently have a category BIRTH or DEATH
@@ -76,6 +92,7 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	 * @return
 	 */
 	def dateFromCategory(c: Category): Date = {
+		val sdf = new SimpleDateFormat("yyyy G")
 		try {
 			if (U.containsNumber(c.name) && U.checkStringContains(c.name, Array("births", "deaths"))) {
 				val numberOfCharacters = "births".length //luckily, birth and death have the same length
@@ -88,7 +105,10 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 				val candidateYear =
 					U.getNumbers(withoutEnding).toInt * (if (withoutEnding.contains("century")) 100 else 1)
 
-				new SimpleDateFormat("yyyy G").parse(candidateYear + (if (isBC) " BC" else " AD"))
+				sdf.parse(candidateYear + (if (isBC) " BC" else " AD"))
+			} else if (U.containsNumber(c.name) && U.checkStringContains(c.name, Array("century", "BC", "th"))) {
+				// a lot of the religious history is only designated by century BC, without exact birth year
+				sdf.parse((U.getNumbers(c.name).toInt * 100) + " BC")
 			} else null
 		}
 		catch {
