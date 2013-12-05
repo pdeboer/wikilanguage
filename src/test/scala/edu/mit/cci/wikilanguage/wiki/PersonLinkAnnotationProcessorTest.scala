@@ -59,6 +59,15 @@ class PersonLinkAnnotationProcessorTest extends Specification with JUnit /*with 
 			pp.commonWindow(p2).from must beNull
 			pp.commonWindow(p2).to must beNull
 		}
+
+		"identify no window when both are not overlapping" in {
+			val p1 = Person("t1")(categories = Array(Category("Category:1760_births")(), Category("Category:1790_deaths")()))
+			val p2 = Person("t2")(categories = Array(Category("Category:1962_births")(), Category("Category:2000_deaths")()))
+
+			val pp = new PersonLinkTimestampDeterminer(p1)
+			pp.commonWindow(p2).from must beNull
+			pp.commonWindow(p2).to must beNull
+		}
 	}
 
 	"PersonLinkTimestampDeterminer's determine function " should {

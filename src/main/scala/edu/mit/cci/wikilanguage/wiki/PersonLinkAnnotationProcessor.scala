@@ -19,12 +19,12 @@ class PersonLinkAnnotationProcessor {
 			val target = DAO.personById(t.personToId, true)
 			val window = sourceTimestamps.commonWindow(target)
 
-			if(window.from!=null || window.to!=null) {
+			if (window.from != null || window.to != null) {
 				DAO.updatePeopleConnection(t.id, window.from, window.to)
 			}
 		})
 
-		println("Processed Person "+id)
+		println("Processed Person " + id)
 	}
 }
 
@@ -35,7 +35,11 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 		val otherDet = plt.determine
 		val meDet = determine
 
-		FromTo(smallerDate(otherDet.from, meDet.from, -1), smallerDate(otherDet.to, meDet.to))
+
+		val ret = FromTo(smallerDate(otherDet.from, meDet.from, -1), smallerDate(otherDet.to, meDet.to))
+		//make sure that windows are overlapping
+		if (ret.from != null && ret.to != null && ret.from.after(ret.to)) FromTo(null, null) //they aren't
+		else ret //they are
 	}
 
 	def determine = {
@@ -62,8 +66,9 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	}
 
 	//function that returns the smaller of the given dates. if mul=-1, it returns the greater one
-	private def smallerDate(d1: Date, d2: Date, mul: Int = 1) = if (d1 == null) d2 else if (d2 == null) d1
-		else if (d1.compareTo(d2) * mul < 0) d1 else d2
+	private def smallerDate(d1: Date, d2: Date, mul: Int = 1) = if (d1 == null) d2
+	else if (d2 == null) d1
+	else if (d1.compareTo(d2) * mul <= 0) d1 else d2
 
 	/**
 	 * works only for people that currently have a category BIRTH or DEATH

@@ -6,6 +6,7 @@ import java.sql.ResultSet
 import edu.mit.cci.wikilanguage.model.{Person, Category}
 import java.util.Date
 import java.sql
+import java.text.SimpleDateFormat
 
 /**
  * User: pdeboer
@@ -172,10 +173,19 @@ object DAO extends DAOQueryReturningType {
 
 	def updatePeopleConnection(connectionId:Int, fromDate:Date, toDate:Date):Boolean = {
 		try {
-			autoCloseStmt("UPDATE connections SET date_from=?, date_to=? WHERE id=?") {
+			val year = (d:Date) => {
+				if(d == null) None else {
+					val sdf = new SimpleDateFormat("G")
+					val mul = if(sdf.format(d) == "BC") -1 else 1
+
+					Some(d.getYear * mul)
+				}
+			}
+
+			autoCloseStmt("UPDATE connections SET year_from=?, year_to=? WHERE id=?") {
 				stmt =>
-					stmt.setDate(1, if(fromDate == null) null else new sql.Date(fromDate.getTime))
-					stmt.setDate(2, if(toDate == null) null else new sql.Date(toDate.getTime))
+					stmt.setString(1, year(fromDate).getOrElse(null)+"")
+					stmt.setString(2, year(toDate).getOrElse(null)+"")
 					stmt.setInt(3, connectionId)
 			}
 			true
