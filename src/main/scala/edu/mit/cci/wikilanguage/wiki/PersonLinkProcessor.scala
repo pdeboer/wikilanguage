@@ -22,6 +22,7 @@ class PersonLinkProcessor(val personId: Int) {
 		val article = ArticleCache.get(personId, person.name, person.lang)
 		article.likelyPersonOutlinks().foreach(l =>
 			DAO.insertPeopleConnectionID(person.id, l, person.id, person.lang))
+		new PersonLinkAnnotationProcessor().processPerson(person.id) //also annotate links
 		println("ended processing of " + personId)
 	}
 
