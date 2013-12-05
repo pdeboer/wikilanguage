@@ -26,6 +26,4 @@ class PersonLinkProcessor(val personId: Int) {
 		println("ended processing of " + personId)
 	}
 
-
-
 }
