@@ -9,7 +9,7 @@ import edu.mit.cci.util.U
  * Time: 6:12 PM
  */
 
-case class Person(private val tempName: String, lang: String = "en")(var id: Int = -1, var categories: Array[Category] = Array.empty[Category], val content: String = null) {
+case class Person(private val tempName: String, lang: String = "en")(var id: Int = -1, var categories: Array[Category] = Array.empty[Category], val content: String = null, val yearFrom:Integer = null, val yearTo:Integer = null) {
 	val name = U.wikiUnify(tempName)
 }
 

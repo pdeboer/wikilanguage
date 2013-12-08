@@ -7,6 +7,11 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
 import java.util.Date
 import java.sql
 import java.text.SimpleDateFormat
+import edu.mit.cci.util.U
+import scala.Predef._
+import scala.Some
+import edu.mit.cci.wikilanguage.model.Category
+import edu.mit.cci.wikilanguage.model.Person
 
 /**
  * User: pdeboer
@@ -51,9 +56,13 @@ object DAO extends DAOQueryReturningType {
 
 	def personByName(name: String, fetchCategories: Boolean = false): Person = {
 		try {
+			type n = (String)=>Integer
+			val number:n = (s:String) => if(s!=null) s.toInt else null
+
 			val data = typedQuery[Person](
-				"SELECT id, name, wiki_language FROM people WHERE name = ?",
-				p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
+				"SELECT id, name, wiki_language, yearFrom, yearTo FROM people WHERE name = ?",
+				p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1),
+					yearFrom = number(r.getString(4)),yearTo = number(r.getString(5))))
 
 			val person = if (data.size > 0) data(0) else null
 
@@ -194,6 +203,34 @@ object DAO extends DAOQueryReturningType {
 			case e: Throwable => {
 				e.printStackTrace()
 				println("couldnt update connection " + connectionId)
+				false
+			}
+		}
+	}
+
+	def updatePersonYears(personId:Int, fromDate: Date, toDate: Date):Boolean = {
+		try {
+			val year = (d: Date) => {
+				if (d == null) None
+				else {
+					val mul = if (new SimpleDateFormat("G").format(d) == "BC") -1 else 1
+
+					Some("" + (new SimpleDateFormat("yyyy").format(d).toInt * mul))
+				}
+			}
+
+			autoCloseStmt("UPDATE people SET year_from=?, year_to=? WHERE id=?") {
+				stmt =>
+					stmt.setString(1, year(fromDate).getOrElse(null))
+					stmt.setString(2, year(toDate).getOrElse(null))
+					stmt.setInt(3, personId)
+			}
+			true
+		}
+		catch {
+			case e: Throwable => {
+				e.printStackTrace()
+				println("couldnt update person " + personId)
 				false
 			}
 		}
