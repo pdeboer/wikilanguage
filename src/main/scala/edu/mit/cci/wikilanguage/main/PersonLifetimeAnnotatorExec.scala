@@ -2,7 +2,7 @@ package edu.mit.cci.wikilanguage.main
 
 import java.util.concurrent.Executors
 import edu.mit.cci.wikilanguage.db.DAO
-import edu.mit.cci.wikilanguage.wiki.{PersonLifetimeAnnotator, PersonLinkAnnotationProcessor, PersonLinkProcessor}
+import edu.mit.cci.wikilanguage.wiki.{PersonDegreeProcessor, PersonLifetimeAnnotator, PersonLinkAnnotationProcessor, PersonLinkProcessor}
 
 /**
  * @author pdeboer
@@ -15,7 +15,7 @@ object PersonLifetimeAnnotatorExec extends App {
 		exec.submit(new Runnable {
 			def run() {
 				try {
-					new PersonLifetimeAnnotator().processPerson(id)
+					new PersonDegreeProcessor().process(id)
 				}
 				catch {
 					case e: Exception => {

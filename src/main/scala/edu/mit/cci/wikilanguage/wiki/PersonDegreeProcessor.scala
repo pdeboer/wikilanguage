@@ -10,6 +10,6 @@ class PersonDegreeProcessor {
 	def process(person:Int) {
 		val deg = DAO.getPersonDegrees(person)
 		if(deg != null) DAO.storePersonDegrees(person, deg)
-		println("processed person "+person)
+		println("processed degree of person "+person)
 	}
 }

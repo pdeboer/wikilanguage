@@ -16,8 +16,8 @@ object Connector {
 		connections.synchronized {
 			// had to use ugly try-catch because scala support for headOption
 			// couldn't cope with a highly parallel environment
-			try {
-				conn = connections.head
+			conn = try {
+				connections.dequeue
 			}
 			catch {
 				case e: Exception => null

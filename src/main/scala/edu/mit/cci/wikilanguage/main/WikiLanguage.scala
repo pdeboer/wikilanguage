@@ -15,5 +15,5 @@ object WikiLanguage extends App {
 	//PersonLinkAnnotator.main(null)
 	//PersonLifetimeAnnotatorExec.main(null)
 
-	new PersonDegreeProcessor().process(458555)
+	PersonLifetimeAnnotatorExec.main(null)
 }
