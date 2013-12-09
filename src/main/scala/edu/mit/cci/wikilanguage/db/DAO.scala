@@ -56,13 +56,13 @@ object DAO extends DAOQueryReturningType {
 
 	def personByName(name: String, fetchCategories: Boolean = false): Person = {
 		try {
-			type n = (String)=>Integer
-			val number:n = (s:String) => if(s!=null) s.toInt else null
+			type n = (String) => Integer
+			val number: n = (s: String) => if (s != null) s.toInt else null
 
 			val data = typedQuery[Person](
 				"SELECT id, name, wiki_language, yearFrom, yearTo FROM people WHERE name = ?",
 				p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1),
-					yearFrom = number(r.getString(4)),yearTo = number(r.getString(5))))
+					yearFrom = number(r.getString(4)), yearTo = number(r.getString(5))))
 
 			val person = if (data.size > 0) data(0) else null
 
@@ -208,7 +208,7 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	def updatePersonYears(personId:Int, fromDate: Date, toDate: Date):Boolean = {
+	def updatePersonYears(personId: Int, fromDate: Date, toDate: Date): Boolean = {
 		try {
 			val year = (d: Date) => {
 				if (d == null) None
@@ -236,6 +236,39 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
+	def getPersonDegrees(personId: Int): PersonDegree = {
+		val p = typedQuery[PersonDegree](
+			"""SELECT
+					(SELECT count(distinct person_to) FROM connections WHERE person_from =?) AS outdeg,
+			  		(SELECT count(distinct person_from) FROM connections WHERE person_to = ?) AS indeg
+			""", s => {
+				s.setInt(1, personId); s.setInt(2, personId)
+			}, o => PersonDegree(o.getInt(1), o.getInt(2)))
+
+		if(p.size > 0) p(0) else null
+	}
+
+	case class PersonDegree(indegree: Int, outdegree: Int)
+
+	def storePersonDegrees(personId:Int, degree:PersonDegree)= {
+		try {
+			autoCloseStmt("INSERT INTO people_degree (id, indegree, outdegree) VALUES(?,?,?) ") {
+				stmt =>
+					stmt.setInt(1, personId)
+					stmt.setInt(2, degree.indegree)
+					stmt.setInt(3, degree.outdegree)
+			}
+			true
+		}
+		catch {
+			case e:Throwable => {
+				e.printStackTrace()
+				println("couldnt add person degree")
+				false
+			}
+		}
+	}
+
 	def getPersonOutlinks(sourcePersonId: Int): List[PersonOutlink] = {
 		val p = typedQuery[PersonOutlink]("SELECT id, person_to FROM connections WHERE person_from = ?",
 			_.setInt(1, sourcePersonId), o => PersonOutlink(o.getInt(1), o.getInt(2)))
@@ -246,6 +279,10 @@ object DAO extends DAOQueryReturningType {
 
 	def getAllPeopleIDs(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
+	}
+
+	def getAllPeopleIDsWithKnownBirthdate() : List[Int] = {
+		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL", s => {}, r => r.getInt(1))
 	}
 
 	def clean() {
