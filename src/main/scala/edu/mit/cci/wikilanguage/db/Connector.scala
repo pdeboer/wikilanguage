@@ -2,6 +2,7 @@ package edu.mit.cci.db
 
 import java.sql._
 import scala.collection.mutable
+import java.util.concurrent.Semaphore
 
 /**
  * User: pdeboer
@@ -10,6 +11,8 @@ import scala.collection.mutable
  */
 object Connector {
 	private val connections = new mutable.Queue[Connection]()
+
+	private val counter = new Semaphore(100)
 
 	def getConnection: Connection = {
 		var conn: Connection = null
@@ -23,26 +26,37 @@ object Connector {
 				case e: Exception => null
 			}
 		}
-		if (conn == null) conn = getNewConnection()
+		if (conn == null) {
+			conn = if(counter.availablePermits() > 0) getNewConnection() else {
+				Thread.sleep(1000)
+				getConnection
+			}
+		}
 
-		if (!conn.isValid(10))
-			conn = getConnection
+		if (!conn.isValid(10)) {
+			counter.release()
+			conn = getNewConnection()
+		}
 
 		conn
 	}
 
+	def offer(c: Connection) {
+		//add connection add end of queue
+		connections.synchronized {
+			connections += c
+		}
+	}
+
 	private def getNewConnection() = {
 		Class.forName("com.mysql.jdbc.Driver")
-		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage2?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
+		counter.acquire()
 
-		connections.synchronized {
-			connections += connection
-		}
+		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage2?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
 
 		println("established new connection")
 
 		connection
-
 	}
 
 	def autoCloseStmt(query: String)(f: (PreparedStatement) => Unit): Boolean = {
@@ -69,7 +83,7 @@ object Connector {
 		}
 		finally {
 			closable match {
-				case c: Connection => connections += c
+				case c: Connection => offer(c)
 				case r: ResultSet => r.close()
 				case s: PreparedStatement => s.close()
 			}
