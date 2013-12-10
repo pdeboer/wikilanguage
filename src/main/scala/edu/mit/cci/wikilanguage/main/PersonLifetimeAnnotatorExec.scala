@@ -15,7 +15,7 @@ object PersonLifetimeAnnotatorExec extends App {
 		exec.submit(new Runnable {
 			def run() {
 				try {
-					new PersonDegreeProcessor().process(id)
+					new PersonLifetimeAnnotator().processPerson(id)
 				}
 				catch {
 					case e: Exception => {

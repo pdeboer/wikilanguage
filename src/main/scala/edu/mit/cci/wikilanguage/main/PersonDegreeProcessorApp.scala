@@ -16,7 +16,6 @@ object PersonDegreeProcessorApp extends App{
 			def run() {
 				try {
 					new PersonDegreeProcessor().process(id)
-					
 				}
 				catch {
 					case e: Exception => {
