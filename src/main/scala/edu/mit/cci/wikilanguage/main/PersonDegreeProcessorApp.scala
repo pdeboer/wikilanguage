@@ -21,6 +21,7 @@ object PersonDegreeProcessorApp extends App{
 					case e: Exception => {
 						println("couldnt process " + id)
 						e.printStackTrace(System.err)
+
 					}
 				}
 			}
