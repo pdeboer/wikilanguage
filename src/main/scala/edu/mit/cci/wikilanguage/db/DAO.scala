@@ -263,7 +263,7 @@ object DAO extends DAOQueryReturningType {
 		catch {
 			case e:Throwable => {
 				e.printStackTrace()
-				println("couldnt add person degree")
+				println("couldnt add person degree to ")
 				false
 			}
 		}
@@ -282,7 +282,8 @@ object DAO extends DAOQueryReturningType {
 	}
 
 	def getAllPeopleIDsWithKnownBirthdate() : List[Int] = {
-		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL AND id NOT IN (SELECT id FROM people_degree)", s => {}, r => r.getInt(1))
+		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL " +
+		  "AND id NOT IN (SELECT id FROM people_degree)", s => {}, r => r.getInt(1))
 	}
 
 	def clean() {
