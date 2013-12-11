@@ -10,10 +10,10 @@ import edu.mit.cci.wikilanguage.wiki.{PersonDegreeProcessor, PersonLifetimeAnnot
  * @author Patrick de Boer
  */
 object WikiLanguage extends App {
-	//PersonDiscoverer.main(null)
+	PersonDiscoverer.main(null)
 	//PersonLinker.main(null)
 	//PersonLinkAnnotator.main(null)
-	PersonLifetimeAnnotatorExec.main(null)
+	//PersonLifetimeAnnotatorExec.main(null)
 
 //	PersonDegreeProcessorApp.main(null)
 }

@@ -61,7 +61,7 @@ object DAO extends DAOQueryReturningType {
 
 			val data = typedQuery[Person](
 				"SELECT id, name, wiki_language, yearFrom, yearTo FROM people WHERE name = ?",
-				p => p.setString(1, name), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1),
+				p => p.setString(1, U.entityEscape(name)), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1),
 					yearFrom = number(r.getString(4)), yearTo = number(r.getString(5))))
 
 			val person = if (data.size > 0) data(0) else null
@@ -70,25 +70,30 @@ object DAO extends DAOQueryReturningType {
 				enrichPersonWithCategories(person)
 			}
 
-			person
+			return person
 		}
 		catch {
-			case e: Throwable => null
+			case e: Throwable => return null
 		}
 	}
 
 	def personById(id: Int, fetchCategories: Boolean = false): Person = {
-		val data = typedQuery[Person](
-			"SELECT id, name, wiki_language FROM people WHERE id = ?",
-			p => p.setInt(1, id), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
+		try {
+			val data = typedQuery[Person](
+				"SELECT id, name, wiki_language FROM people WHERE id = ?",
+				p => p.setInt(1, id), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1)))
 
-		val person = if (data.size > 0) data(0) else null
+			val person = if (data.size > 0) data(0) else null
 
-		if (fetchCategories) {
-			enrichPersonWithCategories(person)
+			if (fetchCategories) {
+				enrichPersonWithCategories(person)
+			}
+			return person
+		}
+		catch {
+			case e: Throwable => return null
 		}
 
-		person
 	}
 
 	private def enrichPersonWithCategories(person: Person) {
@@ -108,6 +113,7 @@ object DAO extends DAOQueryReturningType {
 			"""
 			  SELECT content FROM peoplecontent WHERE id = ?
 			""", _.setInt(1, id), _.getString(1))
+
 		if (c != null && c.size > 0) c(0) else null
 	}
 
@@ -242,15 +248,16 @@ object DAO extends DAOQueryReturningType {
 					(SELECT count(distinct person_to) FROM connections WHERE person_from =?) AS outdeg,
 			  		(SELECT count(distinct person_from) FROM connections WHERE person_to = ?) AS indeg
 			""", s => {
-				s.setInt(1, personId); s.setInt(2, personId)
+				s.setInt(1, personId);
+				s.setInt(2, personId)
 			}, o => PersonDegree(o.getInt(1), o.getInt(2)))
 
-		if(p.size > 0) p(0) else null
+		if (p.size > 0) p(0) else null
 	}
 
 	case class PersonDegree(indegree: Int, outdegree: Int)
 
-	def storePersonDegrees(personId:Int, degree:PersonDegree)= {
+	def storePersonDegrees(personId: Int, degree: PersonDegree) = {
 		try {
 			autoCloseStmt("INSERT INTO people_degree (id, indegree, outdegree) VALUES(?,?,?) ") {
 				stmt =>
@@ -261,7 +268,7 @@ object DAO extends DAOQueryReturningType {
 			true
 		}
 		catch {
-			case e:Throwable => {
+			case e: Throwable => {
 				e.printStackTrace()
 				println("couldnt add person degree to ")
 				false
@@ -281,7 +288,7 @@ object DAO extends DAOQueryReturningType {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
 	}
 
-	def getAllPeopleIDsWithKnownBirthdate() : List[Int] = {
+	def getAllPeopleIDsWithKnownBirthdate(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL " +
 		  "AND id NOT IN (SELECT id FROM people_degree)", s => {}, r => r.getInt(1))
 	}

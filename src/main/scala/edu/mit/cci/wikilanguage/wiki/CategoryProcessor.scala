@@ -50,13 +50,18 @@ class CategoryProcessor(val lang: String = "en") {
 	private class Worker(category: Category) extends Runnable {
 		def run() {
 			val categoriesAndPeople = new CategoryContentProcessor(category).call()
+			//put found categories in queue
 			addToQueue(categoriesAndPeople.categories)
+
+			//insert people
+			val lifetimeAnnotator: PersonLifetimeAnnotator = new PersonLifetimeAnnotator()
 			categoriesAndPeople.people.foreach(p => {
 				if (DAO.personByName(p.name) == null) {
 					val a = ArticleCache.get(p.name, p.lang)
 					a.textFetched //fetch content of said article to ease further processing
 
-					DAO.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
+					val person = DAO.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
+					lifetimeAnnotator.processPerson(person)
 				}
 			})
 		}

@@ -12,4 +12,5 @@ object PersonDiscoverer extends App {
 	//DAO.clean()
 	val processor = new CategoryProcessor()
 	processor.process("Category:People_categories_by_parameter")
+	processor.process("Category:Living_people")
 }

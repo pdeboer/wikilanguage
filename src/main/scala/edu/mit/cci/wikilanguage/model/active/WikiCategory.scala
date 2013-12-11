@@ -82,7 +82,7 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 			val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?action=query" +
 			  "&list=categorymembers&cmtitle=" + categoryClean + "&cmsort=timestamp&format=xml" +
 			  "&cmdir=desc&cmlimit=500" + (if (cmStart != null) "&cmstart=" + cmStart))
-			// method.addRequestHeader("Accept-Charset", "utf-8")
+			method.addRequestHeader("Accept-Charset", "utf-8")
 
 			//delay and get data
 			//Thread.sleep((1000 * 10 * new java.util.Random().nextFloat()).asInstanceOf[Long])
