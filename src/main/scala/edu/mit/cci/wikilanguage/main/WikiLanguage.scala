@@ -11,12 +11,10 @@ import edu.mit.cci.wikilanguage.wiki.{PersonLinkProcessor, PersonDegreeProcessor
  */
 object WikiLanguage extends App {
 	//PersonDiscoverer.main(null)
-	//PersonLinker.main(null)
+	PersonLinker.main(null)
 	//PersonLinkAnnotator.main(null)
 	//PersonLifetimeAnnotatorExec.main(null)
 
 //	PersonDegreeProcessorApp.main(null)
 
-
-	new PersonLinkProcessor(458555).process()
 }

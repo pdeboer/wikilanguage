@@ -188,7 +188,7 @@ object DAO extends DAOQueryReturningType {
 			true
 		}
 		catch {
-			case e: Throwable => println("couldnt insert connection " + fromPersonId + " to " + toPersonName)
+			case e: Throwable => println("couldnt insert connection " + fromPersonId + " to " + toPersonName + ": " + e.getMessage)
 				false
 		}
 	}

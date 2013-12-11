@@ -11,7 +11,7 @@ import java.util.Random
  * Time: 10:47 PM
  */
 object PersonLinker extends App {
-	val exec = Executors.newFixedThreadPool(50)
+	val exec = Executors.newFixedThreadPool(25)
 
 	DAO.truncateConnections()
 	DAO.getAllPeopleIDs().foreach(id => {
