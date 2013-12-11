@@ -60,7 +60,7 @@ object DAO extends DAOQueryReturningType {
 			val number: n = (s: String) => if (s != null) s.toInt else null
 
 			val data = typedQuery[Person](
-				"SELECT id, name, wiki_language, yearFrom, yearTo FROM people WHERE name = ?",
+				"SELECT id, name, wiki_language, year_from, year_to FROM people WHERE name = ?",
 				p => p.setString(1, U.entityEscape(name)), r => new Person(r.getString(2), lang = r.getString(3))(id = r.getInt(1),
 					yearFrom = number(r.getString(4)), yearTo = number(r.getString(5))))
 
@@ -73,7 +73,10 @@ object DAO extends DAOQueryReturningType {
 			return person
 		}
 		catch {
-			case e: Throwable => return null
+			case e: Throwable => {
+				e.printStackTrace()
+				return null
+			}
 		}
 	}
 
