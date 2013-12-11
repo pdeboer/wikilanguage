@@ -172,14 +172,18 @@ object DAO extends DAOQueryReturningType {
 	def insertPeopleConnectionID(fromPersonId: Int, toPersonName: String, articleId: Int, lang: String): Boolean = {
 		try {
 			autoCloseStmt(
-				"""INSERT INTO connections (person_from, person_to, article_name, wiki_language)
-        SELECT ?, id, ?, ? FROM people WHERE name = ?
+				"""
+				INSERT INTO connections (person_from, person_to, article_name, wiki_language)
+        		SELECT ?, id, ?, ? FROM people p WHERE name = ? AND id NOT IN (
+					SELECT person_to FROM connections where person_to = p.id AND person_from = ?
+        		)
 				""") {
 				stmt =>
 					stmt.setInt(1, fromPersonId)
 					stmt.setInt(2, articleId)
 					stmt.setString(3, lang)
 					stmt.setString(4, toPersonName)
+					stmt.setInt(5, fromPersonId)
 			}
 			true
 		}
@@ -296,6 +300,12 @@ object DAO extends DAOQueryReturningType {
 		  "AND id NOT IN (SELECT id FROM people_degree)", s => {}, r => r.getInt(1))
 	}
 
+	def truncateConnections() {
+		autoCloseStmt("TRUNCATE connections") {
+			stmt => null
+		}
+	}
+
 	def clean() {
 		autoCloseStmt("TRUNCATE people") {
 			stmt => null
@@ -306,9 +316,7 @@ object DAO extends DAOQueryReturningType {
 		autoCloseStmt("TRUNCATE categories") {
 			stmt => null
 		}
-		autoCloseStmt("TRUNCATE connections") {
-			stmt => null
-		}
+		truncateConnections()
 		autoCloseStmt("TRUNCATE peoplecontent") {
 			stmt => null
 		}

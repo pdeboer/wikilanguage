@@ -2,7 +2,7 @@ package edu.mit.cci.wikilanguage.main
 
 import edu.mit.cci.wikilanguage.db.DAO
 import java.util.concurrent.Executors
-import edu.mit.cci.wikilanguage.wiki.PersonLinkProcessor
+import edu.mit.cci.wikilanguage.wiki.{PersonLifetimeAnnotator, PersonLinkProcessor}
 import java.util.Random
 
 /**
@@ -13,6 +13,7 @@ import java.util.Random
 object PersonLinker extends App {
 	val exec = Executors.newFixedThreadPool(50)
 
+	DAO.truncateConnections()
 	DAO.getAllPeopleIDs().foreach(id => {
 		exec.submit(new Runnable {
 			def run() {

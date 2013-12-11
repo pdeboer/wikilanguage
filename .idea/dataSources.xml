@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" hash="1769685156">
-    <data-source source="LOCAL" name="wikilanguage" product="MySQL" version="5.5.28" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.26 ( Revision: ${bzr.revision-id} )" uuid="3ec9dab1-7f65-46cc-8bfb-c37e393cf5b7">
-      <extra-name-characters>#@</extra-name-characters>
-      <identifier-quote-string>`</identifier-quote-string>
+    <data-source source="LOCAL" name="wikilanguage" uuid="3ec9dab1-7f65-46cc-8bfb-c37e393cf5b7">
+      <driver-ref>mysql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost/wikilanguage2?useUnicode=true&amp;characterEncoding=UTF-8</jdbc-url>
