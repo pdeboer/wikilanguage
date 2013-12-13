@@ -68,7 +68,7 @@ class CategoryProcessorTest extends Specification with JUnit /*with ScalaCheck*/
 		"filter strings correctly" in {
 			val cp = new CategoryContentProcessor(Category("")(), insertDB=false) {
 				def checkStringContainsPublic(str:String, contains:Array[String]):Boolean = {
-					return U.checkStringContains(str,contains)
+					return U.checkStringContainsOne(str,contains)
 				}
 			}
 

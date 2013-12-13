@@ -6,6 +6,7 @@ import org.specs.runner.{JUnitSuiteRunner, JUnit}
 import edu.mit.cci.wikilanguage.model.{Person, Category}
 import java.util.Date
 import java.text.SimpleDateFormat
+import edu.mit.cci.wikilanguage.db.DAO
 
 //import org.scalacheck.Gen
 
@@ -105,6 +106,15 @@ class PersonLinkAnnotationProcessorTest extends Specification with JUnit /*with 
 			val d = new PersonLinkTimestampDeterminer(p)
 			sdf.format(d.determine.to) == "1990 AD" must beTrue
 			sdf.format(d.determine.from) == "1970 AD" must beTrue
+		}
+	}
+
+	"PersonLinkTimestampDeterminer's determine function " should {
+		"process Jack Frost correctly" in {
+			val p = new PersonLinkTimestampDeterminer(DAO.personById(1221864, true))
+			val res = p.determine
+			sdf.format(res.from) == "1888 AD" must beTrue
+			res.to  must beNull
 		}
 	}
 

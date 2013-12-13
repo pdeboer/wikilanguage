@@ -94,7 +94,7 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	def dateFromCategory(c: Category): Date = {
 		val sdf = new SimpleDateFormat("yyyy G")
 		try {
-			if (U.containsNumber(c.name) && U.checkStringContains(c.name, Array("births", "deaths"))) {
+			if (U.containsNumber(c.name) && U.checkStringContainsOne(c.name, Array("births", "deaths"))) {
 				val numberOfCharacters = "births".length //luckily, birth and death have the same length
 
 				val withoutBeginning = c.name.substring("Category:".length)
@@ -106,7 +106,7 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 					U.getNumbers(withoutEnding).toInt * (if (withoutEnding.contains("century")) 100 else 1)
 
 				sdf.parse(candidateYear + (if (isBC) " BC" else " AD"))
-			} else if (U.containsNumber(c.name) && U.checkStringContains(c.name, Array("century", "BC", "th"))) {
+			} else if (U.containsNumber(c.name) && U.checkStringContainsAll(c.name, Array("century", "BC", "th"))) {
 				// a lot of the religious history is only designated by century BC, without exact birth year
 				sdf.parse((U.getNumbers(c.name).toInt * 100) + " BC")
 			} else null

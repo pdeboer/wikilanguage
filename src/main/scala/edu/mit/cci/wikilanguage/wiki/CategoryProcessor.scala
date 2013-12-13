@@ -106,11 +106,11 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 		CategoriesAndPeople(retCategories, retPeople)
 	}
 
-	def isPerson(name: String) = !U.checkStringContains(name, Array(":", "list", "wikipedia"))
+	def isPerson(name: String) = !U.checkStringContainsOne(name, Array(":", "list", "wikipedia"))
 
 	def isPersonCategory(name: String): Boolean = {
-		!U.checkStringContains(name, Array("cleanup")) &&
-		  (U.containsNumber(name) || U.checkStringContains(name, Array("birth", "death", "person", "people", "century", " BC ")))
+		!U.checkStringContainsOne(name, Array("cleanup")) &&
+		  (U.containsNumber(name) || U.checkStringContainsOne(name, Array("birth", "death", "person", "people", "century", " BC ")))
 	}
 }
 

@@ -9,7 +9,7 @@ import edu.mit.cci.wikilanguage.wiki.{PersonDegreeProcessor, PersonLifetimeAnnot
  *         First created on 04/12/13 at 11:56
  */
 object PersonLifetimeAnnotatorExec extends App {
-	val exec = Executors.newFixedThreadPool(50)
+	val exec = Executors.newFixedThreadPool(25)
 
 	DAO.getAllPeopleIDs().foreach(id => {
 		exec.submit(new Runnable {

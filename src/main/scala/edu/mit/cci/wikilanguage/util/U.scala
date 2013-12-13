@@ -31,10 +31,16 @@ object U {
 	def entityEscape(in: String) =
 		new URI("http", "//mit.edu/" + in, null).toASCIIString.substring("http://mit.edu/".length)
 
-	def checkStringContains(str: String, contains: Array[String]): Boolean = {
+	def checkStringContainsOne(str: String, contains: Array[String]): Boolean = {
 		val lowerCaseString = str.toLowerCase()
 
-		contains.filter(lowerCaseString.contains(_)).size > 0
+		contains.exists(lowerCaseString.contains(_))
+	}
+
+	def checkStringContainsAll(str: String, contains: Array[String], matchCase:Boolean=true): Boolean = {
+		val cmp = if(matchCase) str else str.toLowerCase()
+
+		contains.forall(cmp.contains(_))
 	}
 
 	private var _httpClient: HttpClient = null
