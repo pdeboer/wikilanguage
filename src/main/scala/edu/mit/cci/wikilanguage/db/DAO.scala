@@ -264,13 +264,14 @@ object DAO extends DAOQueryReturningType {
 
 	case class PersonDegree(indegree: Int, outdegree: Int)
 
-	def storePersonDegrees(personId: Int, degree: PersonDegree) = {
+	def storePersonDegrees(personId: Int, degree: PersonDegree, numChars:Int) = {
 		try {
-			autoCloseStmt("UPDATE people_aux SET indegree=?, outdegree=? WHERE id=?") {
+			autoCloseStmt("INSERT INTO people_aux (id, indegree, outdegree, num_chars) VALUES(?,?,?,?)") {
 				stmt =>
-					stmt.setInt(1, degree.indegree)
-					stmt.setInt(2, degree.outdegree)
-					stmt.setInt(3, personId)
+					stmt.setInt(1, personId)
+					stmt.setInt(2, degree.indegree)
+					stmt.setInt(3, degree.outdegree)
+					stmt.setInt(4, numChars)
 			}
 			true
 		}
@@ -283,26 +284,8 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	def storePersonArticleSize(personId: Int, numChars:Int) = {
-		try {
-			autoCloseStmt("UPDATE people_aux SET num_chars = ? WHERE id=?") {
-				stmt =>
-					stmt.setLong(1, numChars)
-					stmt.setInt(2, personId)
-			}
-			true
-		}
-		catch {
-			case e: Throwable => {
-				e.printStackTrace()
-				println("couldnt add article size to "+personId)
-				false
-			}
-		}
-	}
-
-	def createPeopleAuxEntries() {
-		autoCloseStmt("INSERT INTO people_aux (id) SELECT id FROM people WHERE id NOT IN (SELECT id FROM people_aux)") {
+	def cleanPeopleAuxEntries() {
+		autoCloseStmt("TRUNCATE people_aux") {
 			stmt => null
 		}
 	}

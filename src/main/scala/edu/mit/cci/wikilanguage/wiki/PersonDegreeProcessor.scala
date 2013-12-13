@@ -7,8 +7,7 @@ import edu.mit.cci.wikilanguage.db.DAO
  *         First created on 09/12/13 at 11:14
  */
 class PersonDegreeProcessor {
-	def process(person:Int) {
-		val deg = DAO.getPersonDegrees(person)
-		if(deg != null) DAO.storePersonDegrees(person, deg)
+	def getDegrees(person:Int) = {
+		DAO.getPersonDegrees(person)
 	}
 }

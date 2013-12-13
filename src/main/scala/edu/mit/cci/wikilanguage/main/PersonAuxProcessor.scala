@@ -11,14 +11,16 @@ import edu.mit.cci.wikilanguage.wiki.{PersonArticleSizeProcessor, PersonDegreePr
 object PersonAuxProcessor extends App{
 	val exec = Executors.newFixedThreadPool(50)
 
-	DAO.createPeopleAuxEntries()
+	DAO.cleanPeopleAuxEntries()
 	val articleTextProcessor = new PersonArticleSizeProcessor()
 	DAO.getAllPeopleIDsWithKnownBirthdate().foreach(id => {
 		exec.submit(new Runnable {
 			def run() {
 				try {
-					new PersonDegreeProcessor().process(id)
-					articleTextProcessor.process(id)
+					val degree = new PersonDegreeProcessor().getDegrees(id)
+					val textSize = articleTextProcessor.getSize(id)
+
+					DAO.storePersonDegrees(id, degree, textSize)
 					println("processed "+id)
 				}
 				catch {
