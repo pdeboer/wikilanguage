@@ -13,8 +13,8 @@ object WikiLanguage extends App {
 	//PersonDiscoverer.main(null)
 	//PersonLinker.main(null)
 	//PersonLinkAnnotator.main(null)
-	PersonLifetimeAnnotatorExec.main(null)
+	//PersonLifetimeAnnotatorExec.main(null)
 
-	//PersonDegreeProcessorApp.main(null)
+	PersonAuxProcessor.main(null)
 
 }

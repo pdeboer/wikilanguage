@@ -1,6 +1,6 @@
 package edu.mit.cci.wikilanguage.main
 
-import java.util.concurrent.Executors
+import java.util.concurrent.{Semaphore, Executors}
 import edu.mit.cci.wikilanguage.db.DAO
 import edu.mit.cci.wikilanguage.wiki.{PersonDegreeProcessor, PersonLifetimeAnnotator, PersonLinkAnnotationProcessor, PersonLinkProcessor}
 
@@ -11,7 +11,10 @@ import edu.mit.cci.wikilanguage.wiki.{PersonDegreeProcessor, PersonLifetimeAnnot
 object PersonLifetimeAnnotatorExec extends App {
 	val exec = Executors.newFixedThreadPool(25)
 
-	DAO.getAllPeopleIDs().foreach(id => {
+	val ids = DAO.getAllPeopleIDs()
+	val idSem = new Semaphore(-1 * ids.size + 1)
+
+	ids.foreach(id => {
 		exec.submit(new Runnable {
 			def run() {
 				try {
@@ -22,9 +25,15 @@ object PersonLifetimeAnnotatorExec extends App {
 						println("couldnt process " + id)
 						e.printStackTrace(System.err)
 					}
+				} finally {
+					idSem.release()
 				}
 			}
 		})
 	})
 	exec.shutdown()
+
+	//wait for processing to complete
+	idSem.acquire()
+	DAO.addPersonYearEstimations()
 }

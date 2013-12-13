@@ -266,20 +266,44 @@ object DAO extends DAOQueryReturningType {
 
 	def storePersonDegrees(personId: Int, degree: PersonDegree) = {
 		try {
-			autoCloseStmt("INSERT INTO people_degree (id, indegree, outdegree) VALUES(?,?,?) ") {
+			autoCloseStmt("UPDATE people_aux SET indegree=?, outdegree=? WHERE id=?") {
 				stmt =>
-					stmt.setInt(1, personId)
-					stmt.setInt(2, degree.indegree)
-					stmt.setInt(3, degree.outdegree)
+					stmt.setInt(1, degree.indegree)
+					stmt.setInt(2, degree.outdegree)
+					stmt.setInt(3, personId)
 			}
 			true
 		}
 		catch {
 			case e: Throwable => {
 				e.printStackTrace()
-				println("couldnt add person degree to ")
+				println("couldnt add person degree to "+personId)
 				false
 			}
+		}
+	}
+
+	def storePersonArticleSize(personId: Int, numChars:Int) = {
+		try {
+			autoCloseStmt("UPDATE people_aux SET num_chars = ? WHERE id=?") {
+				stmt =>
+					stmt.setLong(1, numChars)
+					stmt.setInt(2, personId)
+			}
+			true
+		}
+		catch {
+			case e: Throwable => {
+				e.printStackTrace()
+				println("couldnt add article size to "+personId)
+				false
+			}
+		}
+	}
+
+	def createPeopleAuxEntries() {
+		autoCloseStmt("INSERT INTO people_aux (id) SELECT id FROM people WHERE id NOT IN (SELECT id FROM people_aux)") {
+			stmt => null
 		}
 	}
 
@@ -296,13 +320,22 @@ object DAO extends DAOQueryReturningType {
 	}
 
 	def getAllPeopleIDsWithKnownBirthdate(): List[Int] = {
-		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL " +
-		  "AND id NOT IN (SELECT id FROM people_degree)", s => {}, r => r.getInt(1))
+		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL", s => {}, r => r.getInt(1))
 	}
 
 	def truncateConnections() {
 		autoCloseStmt("TRUNCATE connections") {
 			stmt => null
+		}
+	}
+
+	def addPersonYearEstimations() {
+		autoCloseStmt("update people set year_from = year_to - 100 where year_from is null") {
+			stmt=>null
+		}
+
+		autoCloseStmt("update people set year_to = year_from + 100 where year_to is null") {
+			stmt=>null
 		}
 	}
 
