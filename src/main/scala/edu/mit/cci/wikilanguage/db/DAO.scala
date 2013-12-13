@@ -253,25 +253,32 @@ object DAO extends DAOQueryReturningType {
 		val p = typedQuery[PersonDegree](
 			"""SELECT
 					(SELECT count(distinct person_to) FROM connections WHERE person_from =?) AS outdeg,
-			  		(SELECT count(distinct person_from) FROM connections WHERE person_to = ?) AS indeg
+			  		(SELECT count(distinct person_from) FROM connections WHERE person_to = ?) AS indeg,
+			  		(SELECT count(distinct person_to) FROM connections WHERE person_from =? AND NOT year_from IS NULL) AS indeg_alive,
+			  		(SELECT count(distinct person_from) FROM connections WHERE person_to =? AND NOT year_from IS NULL) AS outdeg_alive
 			""", s => {
-				s.setInt(1, personId);
+				s.setInt(1, personId)
 				s.setInt(2, personId)
-			}, o => PersonDegree(o.getInt(1), o.getInt(2)))
+				s.setInt(3, personId)
+				s.setInt(4, personId)
+			}, o => PersonDegree(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4)))
 
 		if (p.size > 0) p(0) else null
 	}
 
-	case class PersonDegree(indegree: Int, outdegree: Int)
+	case class PersonDegree(indegree: Int, outdegree: Int, indegreeAlive:Int, outdegreeAlive:Int)
 
 	def storePersonDegrees(personId: Int, degree: PersonDegree, numChars:Int) = {
 		try {
-			autoCloseStmt("INSERT INTO people_aux (id, indegree, outdegree, num_chars) VALUES(?,?,?,?)") {
+			autoCloseStmt("INSERT INTO people_aux (id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive) VALUES(?,?,?,?,?,?)") {
 				stmt =>
 					stmt.setInt(1, personId)
 					stmt.setInt(2, degree.indegree)
 					stmt.setInt(3, degree.outdegree)
 					stmt.setInt(4, numChars)
+					stmt.setInt(5, degree.indegreeAlive)
+					stmt.setInt(6, degree.outdegreeAlive)
+
 			}
 			true
 		}
