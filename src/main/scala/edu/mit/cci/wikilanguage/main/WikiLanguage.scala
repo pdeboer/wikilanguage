@@ -14,7 +14,7 @@ object WikiLanguage extends App {
 	//PersonLinker.main(null)
 	//PersonLinkAnnotator.main(null)
 	//PersonLifetimeAnnotatorExec.main(null)
-
-	PersonAuxProcessor.main(null)
+	//PersonAuxProcessor.main(null)
+	GraphVizExporter.main(null)
 
 }

@@ -249,8 +249,8 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	def getPersonDegrees(personId: Int): PersonDegree = {
-		val p = typedQuery[PersonDegree](
+	def getPersonDegrees(personId: Int): PersonDegrees = {
+		val p = typedQuery[PersonDegrees](
 			"""SELECT
 					(SELECT count(distinct person_to) FROM connections WHERE person_from =?) AS outdeg,
 			  		(SELECT count(distinct person_from) FROM connections WHERE person_to = ?) AS indeg,
@@ -261,14 +261,14 @@ object DAO extends DAOQueryReturningType {
 				s.setInt(2, personId)
 				s.setInt(3, personId)
 				s.setInt(4, personId)
-			}, o => PersonDegree(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4)))
+			}, o => PersonDegrees(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4)))
 
 		if (p.size > 0) p(0) else null
 	}
 
-	case class PersonDegree(indegree: Int, outdegree: Int, indegreeAlive: Int, outdegreeAlive: Int)
+	case class PersonDegrees(indegree: Int, outdegree: Int, indegreeAlive: Int, outdegreeAlive: Int)
 
-	def storePersonDegrees(personId: Int, degree: PersonDegree, numChars: Int) = {
+	def storePersonDegrees(personId: Int, degree: PersonDegrees, numChars: Int) = {
 		try {
 			autoCloseStmt("INSERT INTO people_aux (id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive) VALUES(?,?,?,?,?,?)") {
 				stmt =>
@@ -291,19 +291,63 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
+	case class Experiment(name:String, person:Int = -1, year:Int)
+
+	def storeTopIndegreePerson(experiment:Experiment, indegree:Int) = {
+		try {
+			autoCloseStmt("INSERT INTO year_people_experiments (person_id, year_id, experiment_name, dataInt) VALUES(?,?,?,?)") {
+				stmt =>
+					stmt.setInt(1, experiment.person)
+					stmt.setInt(2, experiment.year)
+					stmt.setString(3, experiment.name)
+					stmt.setInt(4, indegree)
+			}
+			true
+		}
+		catch {
+			case e: Throwable => {
+				e.printStackTrace()
+				println("couldnt add person experiment " + experiment)
+				false
+			}
+		}
+	}
+
 	def cleanPeopleAuxEntries() {
 		autoCloseStmt("TRUNCATE people_aux") {
 			stmt => null
 		}
 	}
 
-	def getPersonOutlinks(sourcePersonId: Int): List[PersonOutlink] = {
-		val p = typedQuery[PersonOutlink]("SELECT id, person_to FROM connections WHERE person_from = ?",
-			_.setInt(1, sourcePersonId), o => PersonOutlink(o.getInt(1), o.getInt(2)))
+	case class PersonDegree(personId:Int, degree:Int)
+
+	def getPopularPeopleByYearByIndegree(year:Int, limit:Int=5) = {
+		val p = typedQuery[PersonDegree](
+			"""
+			SELECT p.id, indegree FROM people p
+			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to
+			ORDER BY a.indegree DESC
+			LIMIT ?""",
+			s=>{
+				s.setInt(1, year)
+				s.setInt(2, limit)
+			}, r=>PersonDegree(r.getInt(1), r.getInt(2)))
 		p
 	}
 
-	case class PersonOutlink(id: Int, personToId: Int)
+	def getPersonOutlinks(sourcePersonId: Int): List[PersonLink] = {
+		val p = typedQuery[PersonLink]("SELECT id, person_to FROM connections WHERE person_from = ?",
+			_.setInt(1, sourcePersonId), o => PersonLink(o.getInt(1), sourcePersonId, o.getInt(2)))
+		p
+	}
+
+	def getPersonInlinks(targetPersonId: Int): List[PersonLink] = {
+		val p = typedQuery[PersonLink]("SELECT id, person_from FROM connections WHERE person_to = ?",
+			_.setInt(1, targetPersonId), o => PersonLink(o.getInt(1), o.getInt(2), targetPersonId))
+		p
+	}
+
+	case class PersonLink(id: Int, personFromId:Int, personToId: Int)
 
 	def getAllPeopleIDs(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
@@ -321,7 +365,12 @@ object DAO extends DAOQueryReturningType {
 	}
 
 
-	def truncateConnections() {
+	def getYears():List[Int] = {
+		typedQuery[Int]("SELECT id FROM years", s => {}, r => r.getInt(1))
+	}
+
+
+		def truncateConnections() {
 		autoCloseStmt("TRUNCATE connections") {
 			stmt => null
 		}
