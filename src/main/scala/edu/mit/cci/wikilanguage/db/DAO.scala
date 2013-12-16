@@ -325,7 +325,7 @@ object DAO extends DAOQueryReturningType {
 		val p = typedQuery[PersonDegree](
 			"""
 			SELECT p.id, indegree FROM people p
-			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to
+			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to AND p.year_from IS NOT NULL
 			ORDER BY a.indegree DESC
 			LIMIT ?""",
 			s=>{
