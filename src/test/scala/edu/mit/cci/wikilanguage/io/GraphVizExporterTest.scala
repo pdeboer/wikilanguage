@@ -34,7 +34,7 @@ class GraphVizExporterTest extends Specification with JUnit /*with ScalaCheck*/ 
 			lines(1).contains("Moses") must beTrue
 			lines(lines.size - 1).endsWith("}") must beTrue
 
-			//new File("out.dot").delete()
+			new File("out.dot").delete()
 		}
 	}
 }
