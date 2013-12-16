@@ -10,13 +10,14 @@ import java.io.{BufferedWriter, FileWriter}
 class GraphVizExporter {
 	var data: List[GraphVizLine] = Nil
 
-	def init(ids: List[Int]) {
+	def init(ids: List[Int], printNames:Boolean = false) {
 		data = ids.par.map(from => {
 			val fromPerson = DAO.personById(from)
 			DAO.getPersonOutlinks(from).map(to => {
 				val toPerson = DAO.personById(to.personToId)
 				GraphVizLine(fromPerson.name, toPerson.name, 1)
 			})
+			if(printNames) println("processed "+from)
 		}).flatten.filter(_ != null).toList
 	}
 

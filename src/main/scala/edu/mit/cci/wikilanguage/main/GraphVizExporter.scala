@@ -9,7 +9,8 @@ import edu.mit.cci.wikilanguage.db.DAO
  */
 object GraphVizExporter extends App {
 	val exporter = new GraphVizExporter()
-	exporter.init(DAO.getAllPeopleIDsWithBirthdateAndIndegreeGt(2))
-
+	exporter.init(DAO.getAllPeopleIDsWithBirthdateAndIndegreeGt(2), printNames = true)
+	println("exporting..")
 	exporter.exportDot("out.dot")
+	println("all set.")
 }
