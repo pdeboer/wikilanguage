@@ -322,9 +322,9 @@ object DAO extends DAOQueryReturningType {
 	def getPopularPeopleByYearByIndegree(year: Int, limit: Int = 5) = {
 		val p = typedQuery[PersonDegree](
 			"""
-			SELECT p.id, indegree FROM people p
+			SELECT p.id, indegree_alive FROM people p
 			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to AND p.year_from IS NOT NULL
-			ORDER BY a.indegree DESC
+			ORDER BY a.indegree_alive DESC
 			LIMIT ?""",
 			s => {
 				s.setInt(1, year)
