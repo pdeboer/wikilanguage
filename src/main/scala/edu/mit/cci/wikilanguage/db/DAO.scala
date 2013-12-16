@@ -266,9 +266,9 @@ object DAO extends DAOQueryReturningType {
 		if (p.size > 0) p(0) else null
 	}
 
-	case class PersonDegree(indegree: Int, outdegree: Int, indegreeAlive:Int, outdegreeAlive:Int)
+	case class PersonDegree(indegree: Int, outdegree: Int, indegreeAlive: Int, outdegreeAlive: Int)
 
-	def storePersonDegrees(personId: Int, degree: PersonDegree, numChars:Int) = {
+	def storePersonDegrees(personId: Int, degree: PersonDegree, numChars: Int) = {
 		try {
 			autoCloseStmt("INSERT INTO people_aux (id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive) VALUES(?,?,?,?,?,?)") {
 				stmt =>
@@ -285,7 +285,7 @@ object DAO extends DAOQueryReturningType {
 		catch {
 			case e: Throwable => {
 				e.printStackTrace()
-				println("couldnt add person degree to "+personId)
+				println("couldnt add person degree to " + personId)
 				false
 			}
 		}
@@ -313,6 +313,14 @@ object DAO extends DAOQueryReturningType {
 		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL", s => {}, r => r.getInt(1))
 	}
 
+	def getAllPeopleIDsWithBirthdateAndIndegreeGt(minIndegree: Int): List[Int] = {
+		typedQuery[Int]( """
+		  SELECT id FROM people p INNER JOIN people_aux a ON p.id = a.id
+		  WHERE year_from IS NOT NULL AND a.indegree_alive > ?
+						 """, s => s.setInt(1, minIndegree), r => r.getInt(1))
+	}
+
+
 	def truncateConnections() {
 		autoCloseStmt("TRUNCATE connections") {
 			stmt => null
@@ -321,11 +329,11 @@ object DAO extends DAOQueryReturningType {
 
 	def addPersonYearEstimations() {
 		autoCloseStmt("update people set year_from = year_to - 100 where year_from is null") {
-			stmt=>null
+			stmt => null
 		}
 
 		autoCloseStmt("update people set year_to = year_from + 100 where year_to is null") {
-			stmt=>null
+			stmt => null
 		}
 	}
 
