@@ -8,7 +8,7 @@ import Connector.autoClose
  *         First created on 9/12/13 at 3:23 PM
  */
 trait DAOQueryReturningType {
-  def typedQuery[T](query: String,
+  protected def typedQuery[T](query: String,
                     setParams: ((PreparedStatement) => Unit),
                     assembleListObject: ((ResultSet) => T)): List[T] = {
     autoClose(Connector.getConnection) {

@@ -19,8 +19,6 @@ import edu.mit.cci.wikilanguage.model.Person
  * Time: 10:13 AM
  */
 object DAO extends DAOQueryReturningType {
-
-
 	def insertCategory(c: Category): Int = {
 		try {
 			val category = categoryByName(c.name)
@@ -291,9 +289,9 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	case class Experiment(name:String, person:Int = -1, year:Int)
+	case class Experiment(name: String, person: Int = -1, year: Int)
 
-	def storeTopIndegreePerson(experiment:Experiment, indegree:Int) = {
+	def storeTopIndegreePerson(experiment: Experiment, indegree: Int) = {
 		try {
 			autoCloseStmt("INSERT INTO year_people_experiments (person_id, year_id, experiment_name, dataInt) VALUES(?,?,?,?)") {
 				stmt =>
@@ -319,19 +317,19 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	case class PersonDegree(personId:Int, degree:Int)
+	case class PersonDegree(personId: Int, degree: Int)
 
-	def getPopularPeopleByYearByIndegree(year:Int, limit:Int=5) = {
+	def getPopularPeopleByYearByIndegree(year: Int, limit: Int = 5) = {
 		val p = typedQuery[PersonDegree](
 			"""
 			SELECT p.id, indegree FROM people p
 			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to AND p.year_from IS NOT NULL
 			ORDER BY a.indegree DESC
 			LIMIT ?""",
-			s=>{
+			s => {
 				s.setInt(1, year)
 				s.setInt(2, limit)
-			}, r=>PersonDegree(r.getInt(1), r.getInt(2)))
+			}, r => PersonDegree(r.getInt(1), r.getInt(2)))
 		p
 	}
 
@@ -347,7 +345,7 @@ object DAO extends DAOQueryReturningType {
 		p
 	}
 
-	case class PersonLink(id: Int, personFromId:Int, personToId: Int)
+	case class PersonLink(id: Int, personFromId: Int, personToId: Int)
 
 	def getAllPeopleIDs(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people", s => {}, r => r.getInt(1))
@@ -365,12 +363,12 @@ object DAO extends DAOQueryReturningType {
 	}
 
 
-	def getYears():List[Int] = {
+	def getYears(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM years", s => {}, r => r.getInt(1))
 	}
 
 
-		def truncateConnections() {
+	def truncateConnections() {
 		autoCloseStmt("TRUNCATE connections") {
 			stmt => null
 		}
