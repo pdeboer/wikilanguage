@@ -359,7 +359,7 @@ object DAO extends DAOQueryReturningType {
 
 	def getAllPeopleIDsWithBirthdateAndIndegreeGt(minIndegree: Int): List[Int] = {
 		typedQuery[Int]( """
-		  SELECT id FROM people p INNER JOIN people_aux a ON p.id = a.id
+		  SELECT p.id FROM people p INNER JOIN people_aux a ON p.id = a.id
 		  WHERE year_from IS NOT NULL AND a.indegree_alive > ?
 						 """, s => s.setInt(1, minIndegree), r => r.getInt(1))
 	}
