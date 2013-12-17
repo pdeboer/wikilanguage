@@ -16,7 +16,7 @@ object WikiLanguage extends App {
 	//PersonLifetimeAnnotatorExec.main(null)
 	//PersonAuxProcessor.main(null)
 	//GraphVizExporter.main(null)
-	//TopNPeopleExperiment.main(null)
-	EdgeListExporter.main(null)
+	TopNPeopleExperiment.main(null)
+//	EdgeListExporter.main(null)
 
 }

@@ -357,7 +357,7 @@ object DAO extends DAOQueryReturningType {
 
 	def getPersonAux(person:Int) = {
 		val p = typedQuery[PersonAux]("""
-		  SELECT id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive WHERE id = ?
+		  SELECT id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive FROM person_aux WHERE id = ?
 		""",
 			_.setInt(1, person), o => PersonAux(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4), o.getInt(5), o.getInt(6)))
 
