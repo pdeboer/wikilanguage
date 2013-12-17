@@ -13,8 +13,8 @@ class TopNPeopleRetrieverByYear {
 
 		people.foreach(p => {
 			val aux = DAO.getPersonAux(p.personId)
-			val ranking = aux.indegreeAlive.toDouble + aux.indegreeAlive.toDouble / aux.outdegreeAlive.toDouble * aux.numChars.toDouble/4621
-			DAO.storeTopIndegreePersonDouble(Experiment("Top5PeopleIndegreeAliveArticleSize", p.personId, year), ranking)
+			val ranking = aux.indegreeAlive.toDouble * aux.numChars.toDouble/4621 + aux.indegreeAlive.toDouble / aux.outdegreeAlive.toDouble
+			DAO.storeTopIndegreePersonDouble(Experiment("Top5PeopleIndegreeAliveArticleSizeData", p.personId, year), ranking)
 		})
 
 		println("processed year "+year)
