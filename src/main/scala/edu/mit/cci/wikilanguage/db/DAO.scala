@@ -369,7 +369,7 @@ object DAO extends DAOQueryReturningType {
 			"""
 			SELECT p.id, indegree_alive FROM people p
 			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to AND p.year_from IS NOT NULL
-			ORDER BY a.indegree_alive/a.outdegree_alive*a.num_chars DESC
+			ORDER BY a.indegree_alive/a.outdegree_alive*indegree_alive*a.num_chars DESC
 			LIMIT ?""",
 			s => {
 				s.setInt(1, year)
