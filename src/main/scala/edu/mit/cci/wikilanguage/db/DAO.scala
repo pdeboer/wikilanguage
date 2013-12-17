@@ -291,7 +291,7 @@ object DAO extends DAOQueryReturningType {
 
 	case class Experiment(name: String, person: Int = -1, year: Int)
 
-	def storeTopIndegreePerson(experiment: Experiment, indegree: Int) = {
+	def storeTopIndegreePersonInt(experiment: Experiment, indegree: Int) = {
 		try {
 			autoCloseStmt("INSERT INTO year_people_experiments (person_id, year_id, experiment_name, dataInt) VALUES(?,?,?,?)") {
 				stmt =>
@@ -299,6 +299,26 @@ object DAO extends DAOQueryReturningType {
 					stmt.setInt(2, experiment.year)
 					stmt.setString(3, experiment.name)
 					stmt.setInt(4, indegree)
+			}
+			true
+		}
+		catch {
+			case e: Throwable => {
+				e.printStackTrace()
+				println("couldnt add person experiment " + experiment)
+				false
+			}
+		}
+	}
+
+	def storeTopIndegreePersonDouble(experiment: Experiment, data:Double) = {
+		try {
+			autoCloseStmt("INSERT INTO year_people_experiments (person_id, year_id, experiment_name, dataDouble) VALUES(?,?,?,?)") {
+				stmt =>
+					stmt.setInt(1, experiment.person)
+					stmt.setInt(2, experiment.year)
+					stmt.setString(3, experiment.name)
+					stmt.setDouble(4, data)
 			}
 			true
 		}
@@ -325,6 +345,31 @@ object DAO extends DAOQueryReturningType {
 			SELECT p.id, indegree_alive FROM people p
 			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to AND p.year_from IS NOT NULL
 			ORDER BY a.indegree_alive DESC
+			LIMIT ?""",
+			s => {
+				s.setInt(1, year)
+				s.setInt(2, limit)
+			}, r => PersonDegree(r.getInt(1), r.getInt(2)))
+		p
+	}
+
+	case class PersonAux(personId:Int, indegree:Int, outdegree:Int, numChars:Int, indegreeAlive:Int, outdegreeAlive:Int)
+
+	def getPersonAux(person:Int) = {
+		val p = typedQuery[PersonAux]("""
+		  SELECT id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive WHERE id = ?
+		""",
+			_.setInt(1, person), o => PersonAux(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4), o.getInt(5), o.getInt(6)))
+
+		if(p.size>0) p(0) else null
+	}
+
+	def getPopularPeopleByYearByIndegreeAndArticleSize(year: Int, limit: Int = 5) = {
+		val p = typedQuery[PersonDegree](
+			"""
+			SELECT p.id, indegree_alive FROM people p
+			  	INNER JOIN people_aux a ON p.id = a.id AND ? BETWEEN p.year_from AND p.year_to AND p.year_from IS NOT NULL
+			ORDER BY a.indegree_alive/a.outdegree_alive*a.num_chars DESC
 			LIMIT ?""",
 			s => {
 				s.setInt(1, year)

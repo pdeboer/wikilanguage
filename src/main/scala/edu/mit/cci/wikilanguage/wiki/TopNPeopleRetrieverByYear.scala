@@ -9,10 +9,12 @@ import edu.mit.cci.wikilanguage.db.DAO
  */
 class TopNPeopleRetrieverByYear {
 	def process(year:Int) {
-		val people = DAO.getPopularPeopleByYearByIndegree(year, 5)
+		val people = DAO.getPopularPeopleByYearByIndegreeAndArticleSize(year, 5)
 
 		people.foreach(p => {
-			DAO.storeTopIndegreePerson(Experiment("Top20PeopleIndegreeAlive", p.personId, year), p.degree)
+			val aux = DAO.getPersonAux(p.personId)
+			val ranking = aux.indegreeAlive.toDouble / aux.outdegreeAlive.toDouble * aux.numChars.toDouble
+			DAO.storeTopIndegreePersonDouble(Experiment("Top5PeopleIndegreeAliveArticleSize", p.personId, year), ranking)
 		})
 
 		println("processed year "+year)
