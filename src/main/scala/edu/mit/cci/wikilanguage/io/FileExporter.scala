@@ -39,5 +39,5 @@ class FileExporter {
 case class GraphVizLine(from: String, to: String, weight: Int) {
 	def dotLine = "\"" + from + "\" -> \"" + to + "\" [weight=" + weight + "]"
 
-	def edgeListLine = "\"" + from + "\" \"" + to + "\" " + weight
+	def edgeListLine = from + " " + to + " " + weight
 }
