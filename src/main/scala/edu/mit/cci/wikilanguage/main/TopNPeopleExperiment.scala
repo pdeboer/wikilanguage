@@ -2,7 +2,8 @@ package edu.mit.cci.wikilanguage.main
 
 import edu.mit.cci.wikilanguage.io.FileExporter
 import edu.mit.cci.wikilanguage.db.DAO
-import edu.mit.cci.wikilanguage.wiki.TopNPeopleRetrieverByYear
+import edu.mit.cci.wikilanguage.wiki.{PersonLinkAnnotationProcessor, TopNPeopleRetrieverByYear}
+import java.util.concurrent.Executors
 
 /**
  * @author pdeboer
@@ -10,5 +11,23 @@ import edu.mit.cci.wikilanguage.wiki.TopNPeopleRetrieverByYear
  */
 object TopNPeopleExperiment extends App {
 	val retriever = new TopNPeopleRetrieverByYear()
-	DAO.getYears().par.foreach(retriever.process(_))
+
+	val exec = Executors.newFixedThreadPool(50)
+
+	DAO.getYears().foreach(id => {
+		exec.submit(new Runnable {
+			def run() {
+				try {
+					retriever.process(id)
+				}
+				catch {
+					case e: Exception => {
+						println("couldnt process " + id)
+						e.printStackTrace(System.err)
+					}
+				}
+			}
+		})
+	})
+	exec.shutdown()
 }
