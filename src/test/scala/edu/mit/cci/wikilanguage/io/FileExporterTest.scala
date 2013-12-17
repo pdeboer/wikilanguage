@@ -16,9 +16,9 @@ import java.io.File
  * Time: 8:24 PM
  */
 @RunWith(classOf[JUnitSuiteRunner])
-class GraphVizExporterTest extends Specification with JUnit /*with ScalaCheck*/ {
+class FileExporterTest extends Specification with JUnit /*with ScalaCheck*/ {
 	"GraphVizExporter " should {
-		val exp = new GraphVizExporter
+		val exp = new FileExporter
 		exp.init(List(DAO.personByName("Moses").id))
 		"should be able to assemble list from DAO" in {
 			exp.data.size > 0 must beTrue
@@ -40,9 +40,9 @@ class GraphVizExporterTest extends Specification with JUnit /*with ScalaCheck*/ 
 }
 
 
-object GraphVizExporterTest {
+object FileExporterTest {
 	def main(args: Array[String]) {
-		new GraphVizExporterTest().main(args)
+		new FileExporterTest().main(args)
 	}
 
 }

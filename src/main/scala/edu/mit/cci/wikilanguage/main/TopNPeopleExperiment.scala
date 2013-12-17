@@ -1,6 +1,6 @@
 package edu.mit.cci.wikilanguage.main
 
-import edu.mit.cci.wikilanguage.io.GraphVizExporter
+import edu.mit.cci.wikilanguage.io.FileExporter
 import edu.mit.cci.wikilanguage.db.DAO
 import edu.mit.cci.wikilanguage.wiki.TopNPeopleRetrieverByYear
 
