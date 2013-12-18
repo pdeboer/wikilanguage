@@ -51,6 +51,8 @@ INSERT INTO condor_datasets (datasetId, dataset) VALUES(1, 'wiki years -3500 to 
 INSERT INTO condor_chars (datasetId, mailaddress, organization, domain, name)
     SELECT 1 as dataset, name, '', '', name FROM people where year_from is not null;
 
+drop table if exists condor_comm_tmp;
+
 create temporary table condor_comm_tmp as
   SELECT 1 as datasetId, c.id as comm_id, p.name as comm_from, concat('year from ', c.year_from) AS comm_subject,
          CAST(concat(c.year_from + 3500+2000, RIGHT(from_unixtime(ceil(rand()*365*60*60*24)), 15)) AS DATETIME)  as comm_time,
