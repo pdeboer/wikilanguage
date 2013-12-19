@@ -58,7 +58,7 @@ create temporary table condor_comm_tmp as
          CAST(concat(c.year_from + 3500+2000, RIGHT(from_unixtime(ceil(rand()*365*60*60*24)), 15)) AS DATETIME)  as comm_time,
          concat('year from ', c.year_from) as comm_content, MAKEDATE(c.year_from + 3500+2000, 1) as timestamp, c.id as messageId
   FROM connections c INNER JOIN people p ON c.person_from = p.id
-  WHERE c.year_from is not null limit 1000;
+  WHERE c.year_from is not null;
 
 insert into condor_comm select * from condor_comm_tmp;
 
