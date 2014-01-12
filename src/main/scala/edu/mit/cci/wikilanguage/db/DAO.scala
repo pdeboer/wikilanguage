@@ -311,7 +311,7 @@ object DAO extends DAOQueryReturningType {
 		}
 	}
 
-	def storeTopIndegreePersonDouble(experiment: Experiment, data:Double) = {
+	def storeTopIndegreePersonDouble(experiment: Experiment, data: Double) = {
 		try {
 			autoCloseStmt("INSERT INTO year_people_experiments (person_id, year_id, experiment_name, dataDouble) VALUES(?,?,?,?)") {
 				stmt =>
@@ -353,15 +353,23 @@ object DAO extends DAOQueryReturningType {
 		p
 	}
 
-	case class PersonAux(personId:Int, indegree:Int, outdegree:Int, numChars:Int, indegreeAlive:Int, outdegreeAlive:Int)
+	case class PersonAux(personId: Int, indegree: Int, outdegree: Int, numChars: Int, indegreeAlive: Int, outdegreeAlive: Int, pageRank: Double = 0d)
 
-	def getPersonAux(person:Int) = {
-		val p = typedQuery[PersonAux]("""
-		  SELECT id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive FROM people_aux WHERE id = ?
-		""",
-			_.setInt(1, person), o => PersonAux(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4), o.getInt(5), o.getInt(6)))
+	def getPersonAux(person: Int) = {
+		val p = typedQuery[PersonAux]( """
+		  SELECT id, indegree, outdegree, num_chars, indegree_alive, outdegree_alive, pagerank FROM people_aux WHERE id = ?
+									   """,
+			_.setInt(1, person), o => PersonAux(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4), o.getInt(5), o.getInt(6), o.getDouble(7)))
 
-		if(p.size>0) p(0) else null
+		if (p.size > 0) p(0) else null
+	}
+
+	def getAllPeopleAux() = {
+		typedQuery[PersonAux]( """
+		  SELECT id, indegree, outdegree, num_chars,
+		  	indegree_alive, outdegree_alive, pagerank
+		  FROM people_aux""",
+			l => {}, o => PersonAux(o.getInt(1), o.getInt(2), o.getInt(3), o.getInt(4), o.getInt(5), o.getInt(6), o.getDouble(7)))
 	}
 
 	def getPopularPeopleByYearByIndegreeAndArticleSize(year: Int, limit: Int = 5) = {

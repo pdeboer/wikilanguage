@@ -62,7 +62,6 @@ create temporary table condor_comm_tmp as
 
 insert into condor_comm select * from condor_comm_tmp;
 
-
 INSERT INTO condor_comm_target (datasetId, comm_id, comm_to, tag, messageId)
     SELECT 1 as dataset, c.id as commId, p.name as commto, c.year_from as tag, c.id as messageId
     FROM connections c INNER JOIN people p ON c.person_to = p.id
