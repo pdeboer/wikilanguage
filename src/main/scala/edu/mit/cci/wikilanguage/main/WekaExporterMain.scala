@@ -7,7 +7,7 @@ import edu.mit.cci.wikilanguage.db.DAO
  * @author pdeboer
  *         First created on 12/01/14 at 21:46
  */
-class WekaExporterMain extends App {
+object WekaExporterMain extends App {
 	println("getting data")
 	val we = new WekaExporter(DAO.getAllPeopleAux().map(p =>
 		PeopleAuxWeka(p.indegreeAlive, p.outdegreeAlive, p.numChars, p.pageRank, "")))
