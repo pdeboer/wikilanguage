@@ -26,7 +26,7 @@ class WekaExporter(val data: List[WekaLine]) {
 		types.foreach(l => out.write("@attribute " + l + " numeric\n"))
 		out.write("@attribute class {" + classNames.mkString(",") + "}\n\n")
 		out.write("@data\n")
-		data.foreach(w => out.write(w.export + "\n"))
+		data.foreach(w => out.write(w.export(classNames.toArray) + "\n"))
 		out.close()
 	}
 }
@@ -37,12 +37,12 @@ trait WekaLine {
 
 	def className: String
 
-	def export = data.map(_._2).mkString(",") + "," + className
+	def export(classes: Array[String]) = classes.map(c => data(c)).mkString(",") + "," + className
 }
 
-case class PeopleAuxWeka(val personId:Int, val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, val className: String) extends WekaLine {
+case class PeopleAuxWeka(val personId: Int, val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, val className: String) extends WekaLine {
 
-	def data = List("personId"->personId.toString, "indegree" -> indegree.toString,
-		"outdegree"-> outdegree.toString, "articleLength" -> articleLength.toString, 		"pageRank" -> pageRank.toString
+	def data = List("personId" -> personId.toString, "indegree" -> indegree.toString,
+		"outdegree" -> outdegree.toString, "articleLength" -> articleLength.toString, "pageRank" -> pageRank.toString
 	).toMap
 }
