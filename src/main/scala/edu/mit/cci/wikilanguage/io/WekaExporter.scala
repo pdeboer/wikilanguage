@@ -2,6 +2,7 @@ package edu.mit.cci.wikilanguage.io
 
 import java.io.{FileWriter, BufferedWriter}
 import scala.collection.convert.WrapAsScala
+import java.util.Collections
 
 /**
  * @author pdeboer
@@ -9,12 +10,12 @@ import scala.collection.convert.WrapAsScala
  */
 class WekaExporter(val data: List[WekaLine]) {
 	lazy val classNames = {
-		val names = new java.util.HashSet[String]
+		val names = Collections.synchronizedSet[String](new java.util.HashSet[String])
 		data.par.foreach(l => names.add(l.className))
 		WrapAsScala.asScalaSet(names)
 	}
 	lazy val types = {
-		val names = new java.util.HashSet[String]
+		val names = Collections.synchronizedSet[String](new java.util.HashSet[String])
 		data.par.foreach(l => l.data.foreach(r => names.add(r._1)))
 		WrapAsScala.asScalaSet(names)
 	}
@@ -33,14 +34,15 @@ class WekaExporter(val data: List[WekaLine]) {
 
 trait WekaLine {
 	def data: Map[String, String]
+
 	def className: String
 
 	def export = data.map(_._2).mkString(",") + "," + className
 }
 
-case class PeopleAuxWeka(val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, val className: String) extends WekaLine {
+case class PeopleAuxWeka(val personId:Int, val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, val className: String) extends WekaLine {
 
-	def data = List("indegree" -> indegree.toString, "outdegree" -> outdegree.toString,
-		"articleLength" -> articleLength.toString, "pageRank" -> pageRank.toString
+	def data = List("personId"->personId.toString, "indegree" -> indegree.toString,
+		"outdegree"-> outdegree.toString, "articleLength" -> articleLength.toString, 		"pageRank" -> pageRank.toString
 	).toMap
 }
