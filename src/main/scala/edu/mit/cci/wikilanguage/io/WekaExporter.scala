@@ -31,11 +31,16 @@ class WekaExporter(val data: List[WekaLine]) {
 }
 
 
-case class WekaLine(val data: Map[String, String], val className: String) {
+trait WekaLine {
+	def data: Map[String, String]
+	def className: String
+
 	def export = data.map(_._2).mkString(",") + "," + className
 }
 
-case class PeopleAuxWeka(val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, override val className: String) extends WekaLine(
-	List("indegree" -> indegree.toString, "outdegree" -> outdegree.toString,
+case class PeopleAuxWeka(val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, val className: String) extends WekaLine {
+
+	def data = List("indegree" -> indegree.toString, "outdegree" -> outdegree.toString,
 		"articleLength" -> articleLength.toString, "pageRank" -> pageRank.toString
-	).toMap, className)
+	).toMap
+}
