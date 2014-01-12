@@ -14,7 +14,7 @@ class WekaExporter(val data: List[WekaLine]) {
 		data.par.foreach(l => names.add(l.className))
 		WrapAsScala.asScalaSet(names)
 	}
-	lazy val types = {
+	lazy val attributes = {
 		val names = Collections.synchronizedSet[String](new java.util.HashSet[String])
 		data.par.foreach(l => l.data.foreach(r => names.add(r._1)))
 		WrapAsScala.asScalaSet(names)
@@ -23,10 +23,10 @@ class WekaExporter(val data: List[WekaLine]) {
 	def export(filename: String) {
 		val out = new BufferedWriter(new FileWriter(filename))
 		out.write("@relation Wikilanguage\n\n")
-		types.foreach(l => out.write("@attribute " + l + " numeric\n"))
+		attributes.foreach(l => out.write("@attribute " + l + " numeric\n"))
 		out.write("@attribute class {" + classNames.mkString(",") + "}\n\n")
 		out.write("@data\n")
-		data.foreach(w => out.write(w.export(classNames.toArray) + "\n"))
+		data.foreach(w => out.write(w.export(attributes.toArray) + "\n"))
 		out.close()
 	}
 }
@@ -37,7 +37,7 @@ trait WekaLine {
 
 	def className: String
 
-	def export(classes: Array[String]) = classes.map(c => data(c)).mkString(",") + "," + className
+	def export(attributes: Array[String]) = attributes.map(c => data(c)).mkString(",") + "," + className
 }
 
 case class PeopleAuxWeka(val personId: Int, val indegree: Int, val outdegree: Int, val articleLength: Int, val pageRank: Double, val className: String) extends WekaLine {
