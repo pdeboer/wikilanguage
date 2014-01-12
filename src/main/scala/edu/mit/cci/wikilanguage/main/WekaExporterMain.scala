@@ -10,7 +10,7 @@ import edu.mit.cci.wikilanguage.db.DAO
 object WekaExporterMain extends App {
 	println("getting data")
 	val we = new WekaExporter(DAO.getAllPeopleAux().map(p =>
-		PeopleAuxWeka(p.indegreeAlive, p.outdegreeAlive, p.numChars, p.pageRank, "")))
+		PeopleAuxWeka(p.indegreeAlive, p.outdegreeAlive, p.numChars, p.pageRank, "1")))
 	println("got data, exporting..")
 	we.export("wekatest.arff")
 	println("finished")

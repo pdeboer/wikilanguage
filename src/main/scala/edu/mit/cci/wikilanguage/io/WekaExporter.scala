@@ -22,7 +22,7 @@ class WekaExporter(val data: List[WekaLine]) {
 	def export(filename: String) {
 		val out = new BufferedWriter(new FileWriter(filename))
 		out.write("@relation Wikilanguage\n\n")
-		types.foreach(l => println("@attribute " + l + " numeric\n"))
+		types.foreach(l => out.write("@attribute " + l + " numeric\n"))
 		out.write("@attribute class {" + classNames.mkString(",") + "}\n\n")
 		out.write("@data\n")
 		data.foreach(w => out.write(w.export + "\n"))
