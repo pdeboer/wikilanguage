@@ -386,6 +386,17 @@ object DAO extends DAOQueryReturningType {
 		p
 	}
 
+	def getConnectionsByYear(year: Int) = {
+		val p = typedQuery[PersonLink](
+			"""
+			  SELECT id, person_from, person_to FROM connections WHERE ? BETWEEN year_from AND IFNULL(year_to, year_from+100)
+			""", s => s.setInt(1, year), r=>PersonLink(r.getInt(1), r.getInt(2), r.getInt(3))
+		)
+		p
+	}
+
+	def getPeopleWithGivenDeathYear(year:Int) = typedQuery[Int]("SELECT id FROM person WHERE year_to=?", _.setInt(1, year), _.getInt(1))
+
 	def getPersonOutlinks(sourcePersonId: Int): List[PersonLink] = {
 		val p = typedQuery[PersonLink]("SELECT id, person_to FROM connections WHERE person_from = ?",
 			_.setInt(1, sourcePersonId), o => PersonLink(o.getInt(1), sourcePersonId, o.getInt(2)))
