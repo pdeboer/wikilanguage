@@ -250,10 +250,10 @@ object DAO extends DAOQueryReturningType {
 	def getPersonDegrees(personId: Int): PersonDegrees = {
 		val p = typedQuery[PersonDegrees](
 			"""SELECT
-					(SELECT count(distinct person_to) FROM connections WHERE person_from =?) AS outdeg,
 			  		(SELECT count(distinct person_from) FROM connections WHERE person_to = ?) AS indeg,
-			  		(SELECT count(distinct person_to) FROM connections WHERE person_from =? AND NOT year_from IS NULL) AS indeg_alive,
-			  		(SELECT count(distinct person_from) FROM connections WHERE person_to =? AND NOT year_from IS NULL) AS outdeg_alive
+					(SELECT count(distinct person_to) FROM connections WHERE person_from =?) AS outdeg,
+			  		(SELECT count(distinct person_from) FROM connections WHERE person_to =? AND NOT year_from IS NULL) AS indeg_alive,
+			  		(SELECT count(distinct person_to) FROM connections WHERE person_from =? AND NOT year_from IS NULL) AS outdeg_alive
 			""", s => {
 				s.setInt(1, personId)
 				s.setInt(2, personId)

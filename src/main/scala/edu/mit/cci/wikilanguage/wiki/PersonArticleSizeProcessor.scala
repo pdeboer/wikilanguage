@@ -12,6 +12,7 @@ class PersonArticleSizeProcessor {
 		val person = DAO.personById(personId)
 		val article = ArticleCache.get(personId, person.name, person.lang)
 
+		if(article.parsed == null) 0 else
 		article.parsed.text().size
 	}
 }

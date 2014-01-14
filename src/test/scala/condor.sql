@@ -53,18 +53,32 @@ INSERT INTO condor_chars (datasetId, mailaddress, organization, domain, name)
 
 drop table if exists condor_comm_tmp;
 
-create temporary table condor_comm_tmp as
+create table condor_comm_tmp as
   SELECT 1 as datasetId, c.id as comm_id, p.name as comm_from, concat('year from ', c.year_from) AS comm_subject,
-         CAST(concat(c.year_from + 3500+2000, RIGHT(from_unixtime(ceil(rand()*365*60*60*24)), 15)) AS DATETIME)  as comm_time,
+         CAST(concat(c.year_from + 3500+2000, RIGHT(from_unixtime(ceil(rand()*365*60*60*23)), 15)) AS DATETIME)  as comm_time,
          concat('year from ', c.year_from) as comm_content, MAKEDATE(c.year_from + 3500+2000, 1) as timestamp, c.id as messageId
   FROM connections c INNER JOIN people p ON c.person_from = p.id
-     INNER JOIN tmp_people_toinclude t on  p.id = t.id
+    INNER JOIN tmp_people_toinclude tf on  c.person_from = tf.id
+    INNER JOIN tmp_people_toinclude tt on  c.person_to = tt.id
   WHERE c.year_from is not null;
+
+
+drop table if exists tmpidstochange;
+create table tmpidstochange as  select min(comm_id) as commid, rand() as rnd
+                                from (select comm_id,  comm_from, comm_time from condor_comm_tmp) a
+                                group by comm_from, comm_time
+                                having count(*) > 1;
+
+alter table tmpidstochange add primary key (commid);
+
+update condor_comm_tmp, tmpidstochange set comm_time = CAST(concat(year(comm_time) + 3500+2000, RIGHT(from_unixtime(ceil(rnd*365*60*60*23)), 15)) AS DATETIME) where comm_id = commid;
+
 
 insert into condor_comm select * from condor_comm_tmp;
 
 INSERT INTO condor_comm_target (datasetId, comm_id, comm_to, tag, messageId)
     SELECT 1 as dataset, c.id as commId, p.name as commto, c.year_from as tag, c.id as messageId
     FROM connections c INNER JOIN people p ON c.person_to = p.id
+      INNER JOIN tmp_people_toinclude t on  p.id = t.id
     WHERE c.year_from is not null;
 
