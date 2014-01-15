@@ -1,7 +1,8 @@
 package edu.mit.cci.wikilanguage.main
 
 import edu.mit.cci.wikilanguage.db.DAO
-import edu.mit.cci.wikilanguage.wiki.BetweennessByYearCalculator
+import edu.mit.cci.wikilanguage.wiki.{TopNPeopleRetrieverByYear, BetweennessByYearCalculator}
+import java.util.concurrent.Executors
 
 /**
  * @author pdeboer
@@ -9,6 +10,27 @@ import edu.mit.cci.wikilanguage.wiki.BetweennessByYearCalculator
  */
 object BetweennessCalculator extends App {
 	println("started..")
-	DAO.getYears().par.foreach(new BetweennessByYearCalculator().process(_))
+
+	val calculator = new BetweennessByYearCalculator()
+
+	val exec = Executors.newFixedThreadPool(10)
+
+	DAO.getYears().foreach(year => {
+		exec.submit(new Runnable {
+			def run() {
+				try {
+					calculator.process(year)
+				}
+				catch {
+					case e: Exception => {
+						println("couldnt process " + year)
+						e.printStackTrace(System.err)
+					}
+				}
+			}
+		})
+	})
+	exec.shutdown()
+
 	println("finished.")
 }

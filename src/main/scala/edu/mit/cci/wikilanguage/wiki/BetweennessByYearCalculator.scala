@@ -14,6 +14,7 @@ import scala.collection.JavaConversions._
 class BetweennessByYearCalculator {
 	def process(year: Int) {
 		println("processing "+year)
+
 		val connections = DAO.getConnectionsByYear(year)
 
 		val graph = new DirectedSparseGraph[Int, Int]
