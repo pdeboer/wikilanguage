@@ -13,7 +13,7 @@ object BetweennessCalculator extends App {
 
 	val calculator = new BetweennessByYearCalculator()
 
-	val exec = Executors.newFixedThreadPool(10)
+	val exec = Executors.newFixedThreadPool(2)
 
 	DAO.getYears().foreach(year => {
 		exec.submit(new Runnable {
