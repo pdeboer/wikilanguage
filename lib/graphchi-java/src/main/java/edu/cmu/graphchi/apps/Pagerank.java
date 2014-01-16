@@ -69,7 +69,7 @@ public class Pagerank implements GraphChiProgram<Float, Float> {
      * @return
      * @throws IOException
      */
-    protected static FastSharder createSharder(String graphName, int numShards) throws IOException {
+    public static FastSharder createSharder(String graphName, int numShards) throws IOException {
         return new FastSharder<Float, Float>(graphName, numShards, new VertexProcessor<Float>() {
             public Float receiveVertexValue(int vertexId, String token) {
                 return (token == null ? 0.0f : Float.parseFloat(token));
