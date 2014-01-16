@@ -395,7 +395,7 @@ object DAO extends DAOQueryReturningType {
 		p
 	}
 
-	def getPeopleWithGivenDeathYear(year:Int) = typedQuery[Int]("SELECT id FROM person WHERE year_to=?", _.setInt(1, year), _.getInt(1))
+	def getPeopleWithGivenDeathYear(year:Int) = typedQuery[Int]("SELECT id FROM people WHERE year_to=?", _.setInt(1, year), _.getInt(1))
 
 	def getPersonOutlinks(sourcePersonId: Int): List[PersonLink] = {
 		val p = typedQuery[PersonLink]("SELECT id, person_to FROM connections WHERE person_from = ?",

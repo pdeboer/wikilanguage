@@ -42,12 +42,13 @@ class BetweennessByYearCalculator {
 
 		val trans = engine.getVertexIdTranslate
 		val top = Toplist.topListFloat(graphName, engine.numVertices(), 2000000) //2mio is more than the amount of ppl we got
+		val highest = top.first().getValue
 		top.foreach(i=>{
 			val personId = trans.backward(i.getVertexId)
 			val pageRank = i.getValue
 
 			if(interestingPeople.contains(personId)) {
-				DAO.storeTopIndegreePersonDouble(Experiment("BetweennessPerson", personId, year), pageRank)
+				DAO.storeTopIndegreePersonDouble(Experiment("BetweennessPerson", personId, year), pageRank/highest)
 			}
 		})
 
