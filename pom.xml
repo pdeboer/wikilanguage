@@ -44,7 +44,7 @@
             <version>2.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>groupId</groupId>
+            <groupId>graphchi</groupId>
             <artifactId>graphchi-java</artifactId>
             <version>0.2</version>
         </dependency>
