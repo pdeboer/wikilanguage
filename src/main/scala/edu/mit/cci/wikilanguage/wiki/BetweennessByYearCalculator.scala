@@ -45,20 +45,19 @@ class BetweennessByYearCalculator {
 			println("calced pagerank " + year)
 
 			val interestingPeople = new util.HashSet[Int](1000)
-			(if (new Date().getYear == year) DAO.getAlivePeople() else DAO.getPeopleWithGivenDeathYear(year)).foreach(interestingPeople.add(_))
+			(if (2014 == year) DAO.getAlivePeople() else DAO.getPeopleWithGivenDeathYear(year)).foreach(interestingPeople.add(_))
 
 
 			val trans = engine.getVertexIdTranslate
 			val top = Toplist.topListFloat(graphName, engine.numVertices(), 2000000) //2mio is more than the amount of ppl we got
-			val highest = top.first().getValue
+			val highest = top.first().getValue.toDouble
 			println(year + " highest pagerank: " + highest + " num vertices: " + engine.numVertices() + " num edges: " + engine.numEdges())
 
 			top.foreach(i => {
 				val personId = trans.backward(i.getVertexId)
-
-				val pageRank = i.getValue
+				val pageRank = i.getValue.toDouble
 				if (interestingPeople.contains(personId)) {
-					DAO.storeTopIndegreePersonDouble(Experiment(experimentName, personId, year), pageRank)
+					DAO.storeTopIndegreePersonDouble(Experiment(experimentName, personId, year), pageRank/highest)
 				}
 			})
 
