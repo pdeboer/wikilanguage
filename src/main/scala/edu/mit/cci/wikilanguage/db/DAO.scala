@@ -397,6 +397,8 @@ object DAO extends DAOQueryReturningType {
 
 	def getPeopleWithGivenDeathYear(year:Int) = typedQuery[Int]("SELECT id FROM people WHERE year_to=?", _.setInt(1, year), _.getInt(1))
 
+	def getAlivePeople() = typedQuery[Int]("SELECT id FROM people WHERE IFNULL(year_to, year_to+100) > YEAR(NOW())", r=>{}, _.getInt(1))
+
 	def getPersonOutlinks(sourcePersonId: Int): List[PersonLink] = {
 		val p = typedQuery[PersonLink]("SELECT id, person_to FROM connections WHERE person_from = ?",
 			_.setInt(1, sourcePersonId), o => PersonLink(o.getInt(1), sourcePersonId, o.getInt(2)))
@@ -417,6 +419,13 @@ object DAO extends DAOQueryReturningType {
 
 	def getAllPeopleIDsWithKnownBirthdate(): List[Int] = {
 		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL", s => {}, r => r.getInt(1))
+	}
+
+	def removeExperimentsInYear(name:String, year:Int) {
+		autoCloseStmt("DELETE FROM year_people_experiments WHERE experiment_name=? AND year_id=?") {stmt=>
+			stmt.setString(1, name)
+			stmt.setInt(2, year)
+		}
 	}
 
 	def getAllPeopleIDsWithBirthdateAndIndegreeGt(minIndegree: Int): List[Int] = {

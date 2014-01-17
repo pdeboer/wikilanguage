@@ -83,3 +83,6 @@ INSERT INTO condor_comm_target (datasetId, comm_id, comm_to, tag, messageId)
       INNER JOIN tmp_people_toinclude tt on  c.person_to = tt.id
     WHERE c.year_from is not null;
 
+
+
+mysqldump -u root wikilanguage2 condor_chars condor_comm condor_comm_target condor_datasets | pv | pigz > condor.sql.gz
