@@ -22,3 +22,8 @@ create index connToTmp on tmp_valid_connections_years (conn_to);
 
 select person_from, person_to, 1 AS w from tmp_valid_connections
 into outfile '/tmp/connectionswiki_full_year.txt3' fields terminated by ' ' optionally enclosed by '' lines terminated by '\n';
+
+
+
+-- clean up
+update connections set year_from = (year_from*-1)/100 where year_from < -3500
