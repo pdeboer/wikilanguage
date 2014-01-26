@@ -10,7 +10,7 @@ import edu.mit.cci.wikilanguage.wiki.{PersonLinkProcessor, PersonDegreeProcessor
  * @author Patrick de Boer
  */
 object WikiLanguage extends App {
-	//PersonDiscoverer.main(null)
+	PersonDiscoverer.main(null)
 	//PersonLinker.main(null)
 	//PersonLinkAnnotator.main(null)
 	//PersonLifetimeAnnotatorExec.main(null)
@@ -18,6 +18,6 @@ object WikiLanguage extends App {
 	//GraphVizExporter.main(null)
 	//	TopNPeopleExperiment.main(null)
 	//	EdgeListExporter.main(null)
-	BetweennessCalculator.main(null)
+	//BetweennessCalculator.main(null)
 	//WekaExporterMain.main(null)
 }

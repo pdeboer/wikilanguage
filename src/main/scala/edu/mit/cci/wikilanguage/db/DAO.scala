@@ -30,6 +30,8 @@ object DAO extends DAOQueryReturningType {
 					stmt.setString(1, c.name)
 					stmt.setString(2, c.lang)
 			}
+			//wait for MySQL to comply
+			Thread.sleep(500)
 			return categoryByName(c.name).id
 		}
 		catch {
@@ -129,6 +131,8 @@ object DAO extends DAOQueryReturningType {
 					stmt.setString(1, a.name)
 					stmt.setString(2, a.lang)
 			}
+
+			Thread.sleep(500)
 
 			val personId = personByName(a.name).id
 
