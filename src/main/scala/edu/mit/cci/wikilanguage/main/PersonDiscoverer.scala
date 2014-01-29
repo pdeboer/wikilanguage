@@ -9,7 +9,7 @@ import edu.mit.cci.wikilanguage.wiki.CategoryProcessor
  * Time: 6:52 PM
  */
 object PersonDiscoverer extends App {
-	//DAO.clean()
+	DAO.clean()
 	val processor = new CategoryProcessor()
 	processor.process("Category:People_categories_by_parameter")
 	processor.process("Category:Living_people")

@@ -75,6 +75,25 @@ object Connector {
 	}
 
 
+	def insertReturnID(query: String)(f: (PreparedStatement) => Unit): Long = {
+		var insertId = -1L
+
+		autoClose(getConnection) {
+			conn => {
+				if (conn == null) return -1L
+
+
+				autoClose(conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+					stmt =>
+						f(stmt)
+						insertId = stmt.executeUpdate()
+				}
+			}
+		}
+
+		insertId
+	}
+
 	def autoClose[T](closable: T)(f: T => Unit) {
 		try {
 			f(closable)

@@ -51,7 +51,7 @@ class CategoryProcessor(val lang: String = "en") {
 		def run() {
 			val categoriesAndPeople = new CategoryContentProcessor(category).call()
 			//put found categories in queue
-			addToQueue(categoriesAndPeople.categories)
+			addToQueue(categoriesAndPeople.categories.toList)
 
 			//insert people
 			val lifetimeAnnotator: PersonLifetimeAnnotator = new PersonLifetimeAnnotator()
@@ -61,7 +61,7 @@ class CategoryProcessor(val lang: String = "en") {
 					a.textFetched //fetch content of said article to ease further processing
 
 					val person = DAO.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
-					lifetimeAnnotator.processPerson(person)
+					if(person> -1) lifetimeAnnotator.processPerson(person)
 				}
 			})
 		}
@@ -81,19 +81,19 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 	def call(): CategoriesAndPeople = {
 		if (insertDB) DAO.insertCategory(cat)
 
-		var retCategories = List.empty[Category]
-		var retPeople = List.empty[Person]
+		var retCategories = mutable.Set.empty[Category]
+		var retPeople = mutable.Set.empty[Person]
 
 		categoryContents().foreach(c => {
 			if (c.startsWith("Category:")) {
 				if (isPersonCategory(c)) {
 					// should be processed
-					retCategories ::= Category(c, cat.lang)()
+					retCategories += Category(c, cat.lang)()
 				}
 			}
 			else if (isPerson(c)) {
 				try {
-					retPeople ::= Person(c, cat.lang)()
+					retPeople += Person(c, cat.lang)()
 				}
 				catch {
 					case e: Throwable => e.printStackTrace()
@@ -101,9 +101,9 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 			}
 		})
 
-		println("finished category " + cat.name + " , found " + retCategories.length + " promising subcategories and "+retPeople.size+ " people")
+		println("finished category " + cat.name + " , found " + retCategories.size + " promising subcategories and "+retPeople.size+ " people")
 
-		CategoriesAndPeople(retCategories, retPeople)
+		CategoriesAndPeople(retCategories.toSet, retPeople.toSet)
 	}
 
 	def isPerson(name: String) = !U.checkStringContainsOne(name, Array(":", "list", "wikipedia"))
@@ -115,4 +115,4 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 }
 
 
-case class CategoriesAndPeople(categories: List[Category], people: List[Person])
+case class CategoriesAndPeople(categories: Set[Category], people: Set[Person])

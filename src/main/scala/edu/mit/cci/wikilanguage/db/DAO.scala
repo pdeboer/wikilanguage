@@ -2,6 +2,7 @@ package edu.mit.cci.wikilanguage.db
 
 import edu.mit.cci.db.{Connector, DAOQueryReturningType}
 import Connector.autoCloseStmt
+import Connector.insertReturnID
 import java.sql.ResultSet
 import edu.mit.cci.wikilanguage.model.{Person, Category}
 import java.util.Date
@@ -12,6 +13,7 @@ import scala.Predef._
 import scala.Some
 import edu.mit.cci.wikilanguage.model.Category
 import edu.mit.cci.wikilanguage.model.Person
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
 
 /**
  * User: pdeboer
@@ -19,27 +21,24 @@ import edu.mit.cci.wikilanguage.model.Person
  * Time: 10:13 AM
  */
 object DAO extends DAOQueryReturningType {
-	def insertCategory(c: Category): Int = {
+	def insertCategory(c: Category, tries: Int = 3): Int = {
 		try {
 			val category = categoryByName(c.name)
 
 			if (category != null) return category.id
 
-			autoCloseStmt("INSERT INTO categories (name, wiki_language) VALUES (?,?) ") {
+			return insertReturnID("INSERT INTO categories (name, wiki_language) VALUES (?,?) ") {
 				stmt =>
 					stmt.setString(1, c.name)
 					stmt.setString(2, c.lang)
-			}
-			//wait for MySQL to comply
-			Thread.sleep(500)
-			return categoryByName(c.name).id
+			}.toInt
 		}
 		catch {
 			case e: Throwable => println("couldnt insert category " + c.name)
 		}
 
-		//just in case we got interrupted by another thread
-		categoryByName(c.name).id
+		//shouldnt come here
+		if (tries > 0) insertCategory(c, tries - 1) else -1
 	}
 
 	private def getCategoryWithDefaultResultSet(r: ResultSet) =
@@ -121,20 +120,16 @@ object DAO extends DAOQueryReturningType {
 	}
 
 
-	def insertPerson(a: Person, resolveCategories: Boolean = false): Int = {
+	def insertPerson(a: Person, resolveCategories: Boolean = false, tries: Int = 3): Int = {
 		try {
 			val person = personByName(a.name)
 			if (person != null) return person.id
 
-			autoCloseStmt("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
+			val personId = insertReturnID("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
 				stmt =>
 					stmt.setString(1, a.name)
 					stmt.setString(2, a.lang)
-			}
-
-			Thread.sleep(500)
-
-			val personId = personByName(a.name).id
+			}.toInt
 
 			//add content if necessary
 			if (a.content != null && a.content != "") {
@@ -157,18 +152,20 @@ object DAO extends DAOQueryReturningType {
 					}
 				})
 			}
-
+			println("inserted " + a.name)
 			return personId
 		}
 		catch {
 			case e: Throwable => {
-				e.printStackTrace()
-				println("couldnt insert person " + a.name)
+				if (!e.getCause.isInstanceOf[MySQLIntegrityConstraintViolationException]) {
+					e.printStackTrace()
+					println("couldnt insert person " + a.name)
+				} else println("constraint violation " + a.name)
 			}
 		}
 
-		//just in case we got interrupted by another thread
-		personByName(a.name).id
+		//shouldnt come here
+		if (tries > 0) insertPerson(a, resolveCategories, tries - 1) else -1
 	}
 
 	def insertPeopleConnectionID(fromPersonId: Int, toPersonName: String, articleId: Int, lang: String): Boolean = {
@@ -394,14 +391,14 @@ object DAO extends DAOQueryReturningType {
 		val p = typedQuery[PersonLink](
 			"""
 			  SELECT id, person_from, person_to FROM connections WHERE ? BETWEEN year_from AND IFNULL(year_to, year_from+100) AND year_FROM IS NOT NULL
-			""", s => s.setInt(1, year), r=>PersonLink(r.getInt(1), r.getInt(2), r.getInt(3))
+			""", s => s.setInt(1, year), r => PersonLink(r.getInt(1), r.getInt(2), r.getInt(3))
 		)
 		p
 	}
 
-	def getPeopleWithGivenDeathYear(year:Int) = typedQuery[Int]("SELECT id FROM people WHERE year_to=?", _.setInt(1, year), _.getInt(1))
+	def getPeopleWithGivenDeathYear(year: Int) = typedQuery[Int]("SELECT id FROM people WHERE year_to=?", _.setInt(1, year), _.getInt(1))
 
-	def getAlivePeople() = typedQuery[Int]("SELECT id FROM people WHERE IFNULL(year_to, year_to+100) > YEAR(NOW())", r=>{}, _.getInt(1))
+	def getAlivePeople() = typedQuery[Int]("SELECT id FROM people WHERE IFNULL(year_to, year_to+100) > YEAR(NOW())", r => {}, _.getInt(1))
 
 	def getPersonOutlinks(sourcePersonId: Int): List[PersonLink] = {
 		val p = typedQuery[PersonLink]("SELECT id, person_to FROM connections WHERE person_from = ?",
@@ -425,10 +422,11 @@ object DAO extends DAOQueryReturningType {
 		typedQuery[Int]("SELECT id FROM people WHERE year_from IS NOT NULL", s => {}, r => r.getInt(1))
 	}
 
-	def removeExperimentsInYear(name:String, year:Int) {
-		autoCloseStmt("DELETE FROM year_people_experiments WHERE experiment_name=? AND year_id=?") {stmt=>
-			stmt.setString(1, name)
-			stmt.setInt(2, year)
+	def removeExperimentsInYear(name: String, year: Int) {
+		autoCloseStmt("DELETE FROM year_people_experiments WHERE experiment_name=? AND year_id=?") {
+			stmt =>
+				stmt.setString(1, name)
+				stmt.setInt(2, year)
 		}
 	}
 
