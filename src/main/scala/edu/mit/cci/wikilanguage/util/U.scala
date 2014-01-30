@@ -65,4 +65,10 @@ object U {
 		}
 		_httpClient
 	}
+
+	def exceptionHasCase[A](t:Throwable):Boolean = {
+		if(t.isInstanceOf[A]) true
+		else if(t.getCause!=null) exceptionHasCase[A](t.getCause)
+		else false
+	}
 }

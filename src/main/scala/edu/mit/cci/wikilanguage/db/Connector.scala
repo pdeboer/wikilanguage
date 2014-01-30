@@ -86,7 +86,13 @@ object Connector {
 				autoClose(conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 					stmt =>
 						f(stmt)
-						insertId = stmt.executeUpdate()
+						stmt.executeUpdate()
+
+						val rs = stmt.getGeneratedKeys
+						if(rs!= null && rs.next()) {
+							insertId = rs.getInt(1)
+							rs.close()
+						}
 				}
 			}
 		}

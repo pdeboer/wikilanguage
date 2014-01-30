@@ -60,8 +60,15 @@ class CategoryProcessor(val lang: String = "en") {
 					val a = ArticleCache.get(p.name, p.lang)
 					a.textFetched //fetch content of said article to ease further processing
 
-					val person = DAO.insertPerson(a, resolveCategories = true) //implicit conversion allows for fetching of categories
-					if(person> -1) lifetimeAnnotator.processPerson(person)
+					val personConverted: Person = a
+					DAO.synchronized {
+						val person = DAO.insertPerson(a) //implicit conversion allows for fetching of categories
+						if (person > -1) {
+							personConverted.id = person
+							DAO.insertPersonMeta(personConverted, resolveCategories = true)
+							lifetimeAnnotator.processPerson(person)
+						}
+					}
 				}
 			})
 		}
@@ -101,7 +108,7 @@ class CategoryContentProcessor(cat: Category, insertDB: Boolean = true) extends 
 			}
 		})
 
-		println("finished category " + cat.name + " , found " + retCategories.size + " promising subcategories and "+retPeople.size+ " people")
+		println("finished category " + cat.name + " , found " + retCategories.size + " promising subcategories and " + retPeople.size + " people")
 
 		CategoriesAndPeople(retCategories.toSet, retPeople.toSet)
 	}

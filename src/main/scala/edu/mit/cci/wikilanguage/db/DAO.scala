@@ -14,6 +14,7 @@ import scala.Some
 import edu.mit.cci.wikilanguage.model.Category
 import edu.mit.cci.wikilanguage.model.Person
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
+import edu.mit.cci.wikilanguage.util.LRUCacheFactory
 
 /**
  * User: pdeboer
@@ -21,24 +22,24 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
  * Time: 10:13 AM
  */
 object DAO extends DAOQueryReturningType {
-	def insertCategory(c: Category, tries: Int = 3): Int = {
+	def insertCategory(c: Category): Int = {
 		try {
 			val category = categoryByName(c.name)
 
-			if (category != null) return category.id
-
-			return insertReturnID("INSERT INTO categories (name, wiki_language) VALUES (?,?) ") {
-				stmt =>
-					stmt.setString(1, c.name)
-					stmt.setString(2, c.lang)
-			}.toInt
+			if (category == null) {
+				insertReturnID("INSERT INTO categories (name, wiki_language) VALUES (?,?) ") {
+					stmt =>
+						stmt.setString(1, c.name)
+						stmt.setString(2, c.lang)
+				}.toInt
+			} else category.id
 		}
 		catch {
-			case e: Throwable => println("couldnt insert category " + c.name)
+			case e: Throwable => {
+				println("couldnt insert category " + c.name);
+				-1
+			}
 		}
-
-		//shouldnt come here
-		if (tries > 0) insertCategory(c, tries - 1) else -1
 	}
 
 	private def getCategoryWithDefaultResultSet(r: ResultSet) =
@@ -49,11 +50,16 @@ object DAO extends DAOQueryReturningType {
 			"SELECT id, name, wiki_language FROM categories WHERE name = ?",
 			p => p.setString(1, name), r => getCategoryWithDefaultResultSet(r))
 
-		if (data.size > 0) return data(0)
-		else return null
+		if (data.size > 0) data(0) else null
 	}
 
 	def personByName(name: String, fetchCategories: Boolean = false): Person = {
+		val cache = LRUCacheFactory.get[Person]("PERSONBYNAME")
+		val cacheAnswer: Person = cache.get(name)
+		if (cacheAnswer != null) {
+			return cacheAnswer
+		}
+
 		try {
 			type n = (String) => Integer
 			val number: n = (s: String) => if (s != null) s.toInt else null
@@ -69,17 +75,25 @@ object DAO extends DAOQueryReturningType {
 				enrichPersonWithCategories(person)
 			}
 
-			return person
+			cache.put(name, person)
+
+			person
 		}
 		catch {
 			case e: Throwable => {
 				e.printStackTrace()
-				return null
+				null
 			}
 		}
 	}
 
 	def personById(id: Int, fetchCategories: Boolean = false): Person = {
+		val cache = LRUCacheFactory.get[Person]("PERSONBYID")
+		val cacheAnswer: Person = cache.get(id + "")
+		if (cacheAnswer != null) {
+			return cacheAnswer
+		}
+
 		try {
 			val data = typedQuery[Person](
 				"SELECT id, name, wiki_language FROM people WHERE id = ?",
@@ -90,7 +104,9 @@ object DAO extends DAOQueryReturningType {
 			if (fetchCategories) {
 				enrichPersonWithCategories(person)
 			}
-			return person
+			cache.put(id + "", person)
+
+			person
 		}
 		catch {
 			case e: Throwable => return null
@@ -119,20 +135,16 @@ object DAO extends DAOQueryReturningType {
 		if (c != null && c.size > 0) c(0) else null
 	}
 
-
-	def insertPerson(a: Person, resolveCategories: Boolean = false, tries: Int = 3): Int = {
-		try {
-			val person = personByName(a.name)
-			if (person != null) return person.id
-
-			val personId = insertReturnID("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
-				stmt =>
-					stmt.setString(1, a.name)
-					stmt.setString(2, a.lang)
-			}.toInt
+	def insertPersonMeta(a: Person, resolveCategories: Boolean = false) {
+		synchronized {
+			val personId = a.id
 
 			//add content if necessary
 			if (a.content != null && a.content != "") {
+				autoCloseStmt("DELETE FROM peoplecontent WHERE id = ?") {
+					stmt => stmt.setInt(1, personId)
+				}
+
 				autoCloseStmt("INSERT INTO peoplecontent (id, content) VALUES (?,?)") {
 					stmt =>
 						stmt.setInt(1, personId)
@@ -141,6 +153,11 @@ object DAO extends DAOQueryReturningType {
 			}
 
 			if (resolveCategories && a.categories != null) {
+				//delete previous categories
+				autoCloseStmt("DELETE FROM people2categories WHERE person = ?") {
+					stmt => stmt.setInt(1, personId)
+				}
+
 				//insert super-categories
 				a.categories.foreach(c => {
 					val categoryId = insertCategory(c) //make sure category exists and get id
@@ -152,20 +169,33 @@ object DAO extends DAOQueryReturningType {
 					}
 				})
 			}
-			println("inserted " + a.name)
-			return personId
 		}
-		catch {
-			case e: Throwable => {
-				if (!e.getCause.isInstanceOf[MySQLIntegrityConstraintViolationException]) {
-					e.printStackTrace()
-					println("couldnt insert person " + a.name)
-				} else println("constraint violation " + a.name)
-			}
-		}
+	}
 
-		//shouldnt come here
-		if (tries > 0) insertPerson(a, resolveCategories, tries - 1) else -1
+	def insertPerson(a: Person): Int = {
+		synchronized {
+			try {
+				val person = personByName(a.name)
+				if (person != null) return person.id
+
+				val personId = insertReturnID("INSERT INTO people (name, wiki_language) VALUES (?,?)") {
+					stmt =>
+						stmt.setString(1, a.name)
+						stmt.setString(2, a.lang)
+				}.toInt
+
+				return personId
+			}
+			catch {
+				case e: Throwable => {
+					if (U.exceptionHasCase[com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException](e)) {
+						e.printStackTrace()
+						println("couldnt insert person " + a.name)
+					}
+				}
+			}
+			-1
+		}
 	}
 
 	def insertPeopleConnectionID(fromPersonId: Int, toPersonName: String, articleId: Int, lang: String): Boolean = {
