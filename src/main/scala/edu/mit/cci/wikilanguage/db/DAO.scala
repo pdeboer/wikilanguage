@@ -216,11 +216,28 @@ object DAO extends DAOQueryReturningType {
 
 	def insertPeopleConnectionID(fromPersonId: Int, toPersonName: String, articleId: Int, lang: String): Boolean = {
 		try {
+			//direct connection
 			autoCloseStmt(
 				"""
 				INSERT INTO connections (person_from, person_to, article_name, wiki_language)
         		SELECT ?, id, ?, ? FROM people p WHERE name = ? AND id NOT IN (
 					SELECT person_to FROM connections where person_to = p.id AND person_from = ?
+        		)
+				""") {
+				stmt =>
+					stmt.setInt(1, fromPersonId)
+					stmt.setInt(2, articleId)
+					stmt.setString(3, lang)
+					stmt.setString(4, toPersonName)
+					stmt.setInt(5, fromPersonId)
+			}
+
+			//aliases
+			autoCloseStmt(
+				"""
+				INSERT INTO connections (person_from, person_to, article_name, wiki_language)
+        		SELECT ?, target_person, ?, ? FROM people_redirections p WHERE title = ? AND target_person NOT IN (
+					SELECT person_to FROM connections where person_to = p.target_person AND person_from = ?
         		)
 				""") {
 				stmt =>

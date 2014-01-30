@@ -115,7 +115,7 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 		try {
 			val client = U.httpClient()
 			val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
-			  "format=xml&action=query&list=backlinks&prop=info&bllimit=500&blredirect=1" +
+			  "format=xml&action=query&list=backlinks&prop=info&bllimit=250&blredirect=1" +
 			  "&blfilterredir=redirects&bltitle=" + nameCleaned)
 			method.addRequestHeader("Accept-Charset", "utf-8")
 			client.executeMethod(method)
