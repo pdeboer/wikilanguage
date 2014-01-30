@@ -23,6 +23,13 @@ class WikiArticleTest extends Specification with JUnit /*with ScalaCheck*/ {
 			val outlinks = article.likelyPersonOutlinks()
 			outlinks.size > 10 must beTrue
 		}
+
+		"find all redirections for article" in {
+			val article = ArticleCache.get("Steffi Graf")
+			val redirects = article.redirects
+			redirects.length > 0 must beTrue
+			redirects.exists(_=="Stefi Graf") must beTrue
+		}
 	}
 }
 

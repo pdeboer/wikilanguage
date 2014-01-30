@@ -85,7 +85,7 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 	 */
 	def outlinks(): List[String] = {
 		//try as many times to get text as possible
-		for(i <- 1 until MAX_CONTENT_FETCH_TRIES) textFetched
+		for (i <- 1 until MAX_CONTENT_FETCH_TRIES) textFetched
 
 		try {
 			//fetch all outgoing links of article and return their names
@@ -108,6 +108,35 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 		}
 
 	}
+
+	private def fetchRedirects(numTries: Int = 3): Array[String] = {
+		if (numTries <= 0) return Array.empty[String]
+
+		try {
+			val client = U.httpClient()
+			val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
+			  "format=xml&action=query&list=backlinks&prop=info&bllimit=500&blredirect=1" +
+			  "&blfilterredir=redirects&bltitle=" + nameCleaned)
+			method.addRequestHeader("Accept-Charset", "utf-8")
+			client.executeMethod(method)
+			val data = method.getResponseBodyAsString
+			method.releaseConnection()
+
+			val xml = XML.loadString(data)
+			val cat = (xml \\ "bl" \\ "@title").map(c => c.toString())
+
+			Array() ++ cat
+		}
+		catch {
+			case e: Throwable => {
+				println("Couldn't get contents of category " + name)
+				e.printStackTrace(System.err)
+				return fetchRedirects(numTries - 1)
+			}
+		}
+	}
+
+	lazy val redirects: Array[String] = fetchRedirects()
 
 	private def urlStart = Array("http://" + lang + ".wikipedia.org/wiki/", "/wiki/", "/w/")
 
