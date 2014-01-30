@@ -25,6 +25,8 @@ object PersonMetaProcessor extends App {
 					person.id = id
 
 					DAO.processPersonMeta(person, true, true)
+
+					println("processed "+id)
 				}
 				catch {
 					case e: Exception => {
