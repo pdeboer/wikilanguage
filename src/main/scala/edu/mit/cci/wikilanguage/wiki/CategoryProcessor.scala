@@ -56,19 +56,24 @@ class CategoryProcessor(val lang: String = "en") {
 			//insert people
 			val lifetimeAnnotator: PersonLifetimeAnnotator = new PersonLifetimeAnnotator()
 			categoriesAndPeople.people.foreach(p => {
-				if (DAO.personByName(p.name) == null) {
-					val a = ArticleCache.get(p.name, p.lang)
-					a.textFetched //fetch content of said article to ease further processing
+				try {
+					if (DAO.personByName(p.name) == null) {
+						val a = ArticleCache.get(p.name, p.lang)
+						a.textFetched //fetch content of said article to ease further processing
 
-					val personConverted: Person = a
-					DAO.synchronized {
-						val person = DAO.insertPerson(a) //implicit conversion allows for fetching of categories
-						if (person > -1) {
-							personConverted.id = person
-							DAO.insertPersonMeta(personConverted, resolveCategories = true, resolveRedirects = true)
-							lifetimeAnnotator.processPerson(person)
+						val personConverted: Person = a
+						DAO.synchronized {
+							val person = DAO.insertPerson(a) //implicit conversion allows for fetching of categories
+							if (person > -1) {
+								personConverted.id = person
+								DAO.insertPersonMeta(personConverted, resolveCategories = true, resolveRedirects = true)
+								lifetimeAnnotator.processPerson(person)
+							}
 						}
 					}
+				}
+				catch {
+					case t:Throwable => t.printStackTrace(System.err)
 				}
 			})
 		}
