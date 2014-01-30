@@ -135,7 +135,7 @@ object DAO extends DAOQueryReturningType {
 		if (c != null && c.size > 0) c(0) else null
 	}
 
-	def insertPersonMeta(a: Person, resolveCategories: Boolean = false) {
+	def insertPersonMeta(a: Person, resolveCategories: Boolean = false, resolveRedirects:Boolean = false) {
 		synchronized {
 			val personId = a.id
 
@@ -152,7 +152,7 @@ object DAO extends DAOQueryReturningType {
 				}
 			}
 
-			if (resolveCategories && a.categories != null) {
+			if (resolveCategories && a.categories != null && a.categories.size > 0) {
 				//delete previous categories
 				autoCloseStmt("DELETE FROM people2categories WHERE person = ?") {
 					stmt => stmt.setInt(1, personId)
@@ -166,6 +166,22 @@ object DAO extends DAOQueryReturningType {
 						stmt =>
 							stmt.setInt(1, personId)
 							stmt.setInt(2, categoryId)
+					}
+				})
+			}
+
+			if(resolveRedirects && a.synonyms != null && a.synonyms.length > 0) {
+				//delete previous categories
+				autoCloseStmt("DELETE FROM people_redirections WHERE target_person = ?") {
+					stmt => stmt.setInt(1, personId)
+				}
+
+				//insert synonyms
+				a.synonyms.foreach(c => {
+					autoCloseStmt("INSERT INTO people_redirections (title, target_person) VALUES (?,?)") {
+						stmt =>
+							stmt.setString(1, c)
+							stmt.setInt(2, personId)
 					}
 				})
 			}

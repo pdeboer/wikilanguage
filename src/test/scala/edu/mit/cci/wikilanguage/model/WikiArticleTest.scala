@@ -5,6 +5,7 @@ import org.specs._
 import org.specs.runner.{JUnitSuiteRunner, JUnit}
 import edu.mit.cci.wikilanguage.model.active.WikiArticle
 import edu.mit.cci.wiki.ArticleCache
+import edu.mit.cci.wikilanguage.db.DAO
 
 //import org.scalacheck.Gen
 
@@ -31,6 +32,14 @@ class WikiArticleTest extends Specification with JUnit /*with ScalaCheck*/ {
 			redirects.exists(_=="Stefi Graf") must beTrue
 		}
 	}
+
+	"DAO to insert redirections" should {
+	"insert them" in {
+		val article = ArticleCache.get("Steffi Graf")
+		val person: Person = Conversions.WikiArticle2Person(article)
+		person.id = DAO.insertPerson(person)
+		DAO.insertPersonMeta(person, resolveCategories = true, resolveRedirects = true)
+	}}
 }
 
 object WikiArticleTest {
