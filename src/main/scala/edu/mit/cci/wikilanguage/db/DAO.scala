@@ -135,7 +135,12 @@ object DAO extends DAOQueryReturningType {
 		if (c != null && c.size > 0) c(0) else null
 	}
 
-	def insertPersonMeta(a: Person, resolveCategories: Boolean = false, resolveRedirects:Boolean = false) {
+	def peopleIdsWithoutRedirection() = {
+		typedQuery[Int]("SELECT id FROM people WHERE id NOT IN (SELECT target_person FROM people_redirections)",
+			c=>null, _.getInt(1))
+	}
+
+	def processPersonMeta(a: Person, resolveCategories: Boolean = false, resolveRedirects:Boolean = false) {
 		synchronized {
 			val personId = a.id
 

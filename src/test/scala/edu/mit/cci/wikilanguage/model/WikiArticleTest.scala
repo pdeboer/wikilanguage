@@ -38,7 +38,7 @@ class WikiArticleTest extends Specification with JUnit /*with ScalaCheck*/ {
 		val article = ArticleCache.get("Steffi Graf")
 		val person: Person = Conversions.WikiArticle2Person(article)
 		person.id = DAO.insertPerson(person)
-		DAO.insertPersonMeta(person, resolveCategories = true, resolveRedirects = true)
+		DAO.processPersonMeta(person, resolveCategories = true, resolveRedirects = true)
 	}}
 }
 

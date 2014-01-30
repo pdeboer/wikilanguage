@@ -44,7 +44,8 @@ object ArticleCache {
 	def get(id: Int, title: String, lang: String): WikiArticle = {
 		val article = get(title,lang)
 		if(article.text == "") {
-			article.text = DAO.personContentById(id)
+			val contentDB: String = DAO.personContentById(id)
+			article.text = if(contentDB == null) "" else contentDB
 		}
 		article
 	}

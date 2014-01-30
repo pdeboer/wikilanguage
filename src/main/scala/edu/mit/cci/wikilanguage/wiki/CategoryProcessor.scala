@@ -66,7 +66,7 @@ class CategoryProcessor(val lang: String = "en") {
 							val person = DAO.insertPerson(a) //implicit conversion allows for fetching of categories
 							if (person > -1) {
 								personConverted.id = person
-								DAO.insertPersonMeta(personConverted, resolveCategories = true, resolveRedirects = true)
+								DAO.processPersonMeta(personConverted, resolveCategories = true, resolveRedirects = true)
 								lifetimeAnnotator.processPerson(person)
 							}
 						}
