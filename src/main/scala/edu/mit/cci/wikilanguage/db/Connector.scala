@@ -52,7 +52,7 @@ object Connector {
 		Class.forName("com.mysql.jdbc.Driver")
 		counter.acquire()
 
-		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage2?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
+		val connection: Connection = DriverManager.getConnection("jdbc:mysql://localhost/wikilanguage?useUnicode=true&characterEncoding=UTF-8", "wikilanguage", "wikilanguage")
 
 		println("established new connection")
 
