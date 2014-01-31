@@ -28,7 +28,8 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 			try {
 				val client = U.httpClient()
 				//val method = new GetMethod("http://en.wikipedia.org/w/index.php?title=" + URLEncoder.encode(name) + "&action=raw")
-				val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + nameCleaned)
+				val nameToUse = if(contentFetchTries%2==1) nameCleaned else name
+				val method = new GetMethod("http://" + lang + ".wikipedia.org/wiki/" + nameToUse)
 				method.addRequestHeader("Accept-Charset", "utf-8")
 				client.executeMethod(method)
 
@@ -54,12 +55,13 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 	}
 
 	def categories = {
-		if (_categories == null && categoryFetchTries < 3) {
+		if (_categories == null && categoryFetchTries < 4) {
 			categoryFetchTries += 1
 			try {
 				val client = U.httpClient()
+				val nameToUse = if(categoryFetchTries%2==0) nameCleaned else name
 				val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
-				  "format=xml&action=query&prop=categories&titles=" + nameCleaned + "&cllimit=500")
+				  "format=xml&action=query&prop=categories&titles=" + nameToUse + "&cllimit=500")
 				method.addRequestHeader("Accept-Charset", "utf-8")
 				client.executeMethod(method)
 				val data = method.getResponseBodyAsString
@@ -114,9 +116,11 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 
 		try {
 			val client = U.httpClient()
+			val nameToUse = if(numTries % 2 == 1) nameCleaned else name
+
 			val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
 			  "format=xml&action=query&list=backlinks&prop=info&bllimit=250&blredirect=1" +
-			  "&blfilterredir=redirects&bltitle=" + nameCleaned)
+			  "&blfilterredir=redirects&bltitle=" + nameToUse)
 			method.addRequestHeader("Accept-Charset", "utf-8")
 			client.executeMethod(method)
 			val data = method.getResponseBodyAsString
