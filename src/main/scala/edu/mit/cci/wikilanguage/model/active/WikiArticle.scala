@@ -59,7 +59,7 @@ class WikiArticle(val name: String, val lang: String = "en", var text: String = 
 			categoryFetchTries += 1
 			try {
 				val client = U.httpClient()
-				val nameToUse = if(categoryFetchTries%2==0) nameCleaned else name
+				val nameToUse = if(categoryFetchTries%2==1) nameCleaned else name
 				val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?" +
 				  "format=xml&action=query&prop=categories&titles=" + nameToUse + "&cllimit=500")
 				method.addRequestHeader("Accept-Charset", "utf-8")

@@ -79,7 +79,7 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 
 		try {
 			val client = U.httpClient()
-			val categoryNameToUse = if(tries % 2 == 0) categoryClean else category
+			val categoryNameToUse = if(tries % 2 == 1) categoryClean else category
 			val method = new GetMethod("http://" + lang + ".wikipedia.org/w/api.php?action=query" +
 			  "&list=categorymembers&cmtitle=" + categoryNameToUse + "&cmsort=timestamp&format=xml" +
 			  "&cmdir=desc&cmlimit=500" + (if (cmStart != null) "&cmstart=" + cmStart))
