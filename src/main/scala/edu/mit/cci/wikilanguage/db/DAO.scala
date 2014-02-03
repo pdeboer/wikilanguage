@@ -136,7 +136,7 @@ object DAO extends DAOQueryReturningType {
 	}
 
 	def peopleIdsWithoutRedirection() = {
-		typedQuery[Int]("SELECT id FROM people WHERE id NOT IN (SELECT target_person FROM people_redirections)",
+		typedQuery[Int]("SELECT id FROM people WHERE id NOT IN (SELECT DISTINCT target_person FROM people_redirections)",
 			c=>null, _.getInt(1))
 	}
 
