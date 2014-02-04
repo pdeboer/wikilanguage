@@ -15,6 +15,7 @@ import edu.mit.cci.wikilanguage.model.Category
 import edu.mit.cci.wikilanguage.model.Person
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
 import edu.mit.cci.wikilanguage.util.LRUCacheFactory
+import scala.util.Random
 
 /**
  * User: pdeboer
