@@ -37,6 +37,8 @@ object U {
 		contains.exists(lowerCaseString.contains(_))
 	}
 
+	def stripNonBmpUTF(in:String) =  in.replaceAll("[^\\u0000-\\uFFFF]", "")
+
 	def checkStringContainsAll(str: String, contains: Array[String], matchCase:Boolean=true): Boolean = {
 		val cmp = if(matchCase) str else str.toLowerCase()
 

@@ -154,7 +154,7 @@ object DAO extends DAOQueryReturningType {
 				autoCloseStmt("INSERT INTO peoplecontent (id, content) VALUES (?,?)") {
 					stmt =>
 						stmt.setInt(1, personId)
-						stmt.setString(2, a.content)
+						stmt.setString(2, U.stripNonBmpUTF(a.content))
 				}
 			}
 
