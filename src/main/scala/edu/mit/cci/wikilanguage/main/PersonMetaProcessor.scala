@@ -16,30 +16,26 @@ object PersonMetaProcessor extends App {
 	DAO.peopleIdsWithoutRedirection().foreach(id => {
 		exec.submit(new Runnable {
 			def run() {
-				process(id)
+				try {
+					val personDB = DAO.personById(id)
+					val article = ArticleCache.get(id, personDB.name, personDB.lang)
+					article.textFetched //make sure text is fetched
+
+					val person: Person = Conversions.WikiArticle2Person(article)
+					person.id = id
+
+					DAO.processPersonMeta(person, true, true)
+
+					println("processed "+id)
+				}
+				catch {
+					case e: Exception => {
+						println("couldnt process " + id)
+						e.printStackTrace(System.err)
+					}
+				}
 			}
 		})
 	})
 	exec.shutdown()
-
-	def process(id:Int) {
-		try {
-			val personDB = DAO.personById(id)
-			val article = ArticleCache.get(id, personDB.name, personDB.lang)
-			article.textFetched //make sure text is fetched
-
-			val person: Person = Conversions.WikiArticle2Person(article)
-			person.id = id
-
-			DAO.processPersonMeta(person, true, true)
-
-			println("processed "+id)
-		}
-		catch {
-			case e: Exception => {
-				println("couldnt process " + id)
-				e.printStackTrace(System.err)
-			}
-		}
-	}
 }
