@@ -27,3 +27,10 @@ into outfile '/tmp/connectionswiki_full_year.txt3' fields terminated by ' ' opti
 
 -- clean up
 update connections set year_from = (year_from*-1)/100 where year_from < -3500
+
+
+
+
+
+select name, indegree, `dataDouble`, year_id from people p inner join people_aux a on p.id=a.id
+  inner join `year_people_experiments` y on p.id=y.person_id order by `dataDouble` desc, indegree desc

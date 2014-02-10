@@ -12,14 +12,14 @@ import edu.mit.cci.wikilanguage.db.DAO
  */
 object WikiLanguage extends App {
 	//PersonDiscoverer.main(null)
-	PersonMetaProcessor.main(null)
+	//PersonMetaProcessor.main(null)
 	//PersonLinker.main(null)
 	//PersonLinkAnnotator.main(null)
 	//PersonLifetimeAnnotatorExec.main(null)
-	//PersonAuxProcessor.main(null)
+	PersonAuxProcessor.main(null)
 	//GraphVizExporter.main(null)
-	//	TopNPeopleExperiment.main(null)
+		//TopNPeopleExperiment.main(null)
 	//	EdgeListExporter.main(null)
-	//BetweennessCalculator.main(null)
+	BetweennessCalculator.main(null)
 	//WekaExporterMain.main(null)
 }

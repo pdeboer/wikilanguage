@@ -6,8 +6,8 @@
 # http://code.google.com/p/sequel-pro/
 #
 # Host: 127.0.0.1 (MySQL 5.1.72-0ubuntu0.10.04.1)
-# Database: wikilanguage2
-# Generation Time: 2013-12-08 03:17:29 +0000
+# Database: wikilanguage
+# Generation Time: 2014-02-10 16:19:26 +0000
 # ************************************************************
 
 
@@ -49,7 +49,9 @@ CREATE TABLE `connections` (
   `year_from` int(11) DEFAULT NULL,
   `year_to` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `person_from` (`person_from`)
+  UNIQUE KEY `person_from_2` (`person_from`,`person_to`),
+  KEY `person_from` (`person_from`),
+  KEY `pplto` (`person_to`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -68,6 +70,40 @@ CREATE TABLE `people` (
   `year_to` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table people_aux
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `people_aux`;
+
+CREATE TABLE `people_aux` (
+  `id` int(11) unsigned NOT NULL,
+  `indegree` int(11) DEFAULT NULL,
+  `outdegree` int(11) DEFAULT NULL,
+  `num_chars` int(11) DEFAULT NULL,
+  `indegree_alive` int(11) DEFAULT NULL,
+  `outdegree_alive` int(11) DEFAULT NULL,
+  `pagerank` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table people_redirections
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `people_redirections`;
+
+CREATE TABLE `people_redirections` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `target_person` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `title` (`title`),
+  KEY `target_person` (`target_person`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -98,6 +134,25 @@ CREATE TABLE `peoplecontent` (
 
 
 
+# Dump of table year_people_experiments
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `year_people_experiments`;
+
+CREATE TABLE `year_people_experiments` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `person_id` int(11) NOT NULL,
+  `year_id` int(11) NOT NULL,
+  `experiment_name` varchar(100) NOT NULL DEFAULT '',
+  `dataInt` int(11) DEFAULT NULL,
+  `dataString` varchar(1000) DEFAULT NULL,
+  `dataDouble` double DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `experiment_name` (`experiment_name`,`person_id`,`year_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table years
 # ------------------------------------------------------------
 
@@ -106,6 +161,8 @@ DROP TABLE IF EXISTS `years`;
 CREATE TABLE `years` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people_alive` int(11) DEFAULT NULL,
+  `people_indeg1_alive` int(11) DEFAULT NULL,
+  `people_born` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
