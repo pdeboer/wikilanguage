@@ -53,7 +53,7 @@ class BetweennessByYearCalculator {
 			val highest = top.first().getValue.toDouble
 			println(year + " highest pagerank: " + highest + " num vertices: " + engine.numVertices() + " num edges: " + engine.numEdges())
 
-			top.foreach(i => {
+			top.par.foreach(i => {
 				val personId = trans.backward(i.getVertexId)
 				val pageRank = i.getValue.toDouble
 				if (interestingPeople.contains(personId)) {
