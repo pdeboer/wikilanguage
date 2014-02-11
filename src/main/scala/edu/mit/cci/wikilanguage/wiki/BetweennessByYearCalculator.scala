@@ -28,7 +28,7 @@ class BetweennessByYearCalculator {
 			DAO.removeExperimentsInYear(experimentName, year)
 
 
-			val connections = DAO.getConnectionsByYear(year)
+			val connections = DAO.getFilteredConnectionsByYear(year)
 			val graphName: String = "pr" + year
 			val numShards: Int = 2
 			val sharder = Pagerank.createSharder(graphName, numShards)
