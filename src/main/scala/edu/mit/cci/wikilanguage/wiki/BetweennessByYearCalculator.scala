@@ -18,7 +18,7 @@ import java.util.Date
  *         First created on 16/12/13 at 14:16
  */
 class BetweennessByYearCalculator {
-	val experimentName: String = "BetweennessPerson"
+	val experimentName: String = "BetweennessPersonYearly"
 
 	def process(year: Int, remainingTries:Int=3) {
 		if(remainingTries == 0) return
@@ -56,9 +56,9 @@ class BetweennessByYearCalculator {
 			top.par.foreach(i => {
 				val personId = trans.backward(i.getVertexId)
 				val pageRank = i.getValue.toDouble
-				if (interestingPeople.contains(personId)) {
+			//if (interestingPeople.contains(personId)) {
 					DAO.storeTopIndegreePersonDouble(Experiment(experimentName, personId, year), pageRank/highest)
-				}
+			//	}
 			})
 
 			println("processed year " + year)
