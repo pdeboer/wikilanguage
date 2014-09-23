@@ -102,13 +102,16 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 
 				val isBC = withoutEnding.contains("BC")
 
-				val candidateYear =
+				val candidateYearTmp =
 					U.getNumbers(withoutEnding).toInt * (if (withoutEnding.contains("century")) 100 else 1)
+
+				val candidateYear =
+					candidateYearTmp - (if (withoutEnding.contains("century")) 100 else 0)
 
 				sdf.parse(candidateYear + (if (isBC) " BC" else " AD"))
 			} else if (U.containsNumber(c.name) && U.checkStringContainsAll(c.name, Array("century", "BC", "th"))) {
 				// a lot of the religious history is only designated by century BC, without exact birth year
-				sdf.parse((U.getNumbers(c.name).toInt * 100) + " BC")
+				sdf.parse(((U.getNumbers(c.name).toInt * 100) - 100) + " BC")
 			} else null
 		}
 		catch {
