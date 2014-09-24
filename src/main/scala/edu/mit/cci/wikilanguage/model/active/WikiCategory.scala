@@ -19,13 +19,13 @@ import scala.util.Random
  * <?xml version="1.0"?>
 <api>
   <query-continue>
-    <categorymembers cmstart="2013-07-07T14:59:14Z" />
+    <categorymembers cmcontinue="2014-08-29 15:44:04|39831253"/>
   </query-continue>
   <query>
     <categorymembers>
-      <cm pageid="40601636" ns="0" title="Fedor Flinzer" />
-      <cm pageid="40499851" ns="0" title="Gotthardt Kuehl" />
-      <cm pageid="40492280" ns="0" title="Max Fleischer (painter)" />
+      <cm pageid="43765158" ns="0" title="Leigh McMillan (Canadian football)"/>
+      <cm pageid="43769426" ns="0" title="Harry Anderson (Canadian football)"/>
+      <cm pageid="43795568" ns="0" title="Buster Brown (Canadian football)"/>
 
  if members exceed fetch-limit, use cmstart to retrieve next page
  */
@@ -58,8 +58,11 @@ class WikiCategory(val category: String, cmStart: String = null, val lang: Strin
 		//get other pages
 		try {
 			if ((xml \\ "query-continue").length == 1) {
-				val newStart = xml \\ "query-continue" \ "categorymembers" \ "@cmstart"
-				return new WikiCategory(category, newStart.text).contents
+				val newStart_date = (xml \\ "query-continue" \ "categorymembers" \ "@cmcontinue").text.take(10)
+				val newStart_time = (xml \\ "query-continue" \ "categorymembers" \ "@cmcontinue").text.substring(11,19)
+				val newStart = newStart_date + "T" + newStart_time + "Z"
+
+				return new WikiCategory(category, newStart).contents
 			}
 		}
 		catch {
