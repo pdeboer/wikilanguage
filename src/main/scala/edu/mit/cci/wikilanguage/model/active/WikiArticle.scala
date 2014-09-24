@@ -13,7 +13,7 @@ import scala.xml.XML
  *
  * rich class that fetches data from wikipedia if needed. starts off sparse
  */
-class WikiArticle(val name: String, val lang: String = "en", var text: String = "") {
+class WikiArticle(val name: String, val lang: String = "ja", var text: String = "") {
 	private var _parsed: Element = null
 	private var _categories: Array[WikiCategory] = null
 

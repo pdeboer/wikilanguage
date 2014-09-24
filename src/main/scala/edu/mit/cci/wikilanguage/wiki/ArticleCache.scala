@@ -24,7 +24,7 @@ object ArticleCache {
 	 * @param lang
 	 * @return
 	 */
-	def get(title: String, lang: String = "en"): WikiArticle = {
+	def get(title: String, lang: String = "ja"): WikiArticle = {
 		articles.synchronized({
 			if (!articles.containsKey(title) || articles.get(title).get.isEmpty) {
 				articles.put(title, new WeakReference[WikiArticle](new WikiArticle(title, lang)))

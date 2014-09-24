@@ -16,7 +16,7 @@ import edu.mit.cci.wikilanguage.model.{Person, Category}
  * Date: 10/13/13
  * Time: 10:17 AM
  */
-class CategoryProcessor(val lang: String = "en") {
+class CategoryProcessor(val lang: String = "ja") {
 	private val processed: mutable.Set[String] = Collections.synchronizedSet(new java.util.HashSet[String]())
 	private val exec = Executors.newFixedThreadPool(50)
 

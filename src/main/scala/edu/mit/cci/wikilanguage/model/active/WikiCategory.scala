@@ -29,7 +29,7 @@ import scala.util.Random
 
  if members exceed fetch-limit, use cmstart to retrieve next page
  */
-class WikiCategory(val category: String, cmStart: String = null, val lang: String = "en") {
+class WikiCategory(val category: String, cmStart: String = null, val lang: String = "ja") {
 	require(category != null)
 
 	private var _contents: Array[String] = null
