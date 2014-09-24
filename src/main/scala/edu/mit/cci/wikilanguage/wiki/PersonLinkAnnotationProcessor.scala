@@ -94,24 +94,24 @@ class PersonLinkTimestampDeterminer(val person: Person) {
 	def dateFromCategory(c: Category): Date = {
 		val sdf = new SimpleDateFormat("yyyy G")
 		try {
-			if (U.containsNumber(c.name) && U.checkStringContainsOne(c.name, Array("births", "deaths"))) {
-				val numberOfCharacters = "births".length //luckily, birth and death have the same length
+			if (U.containsNumber(c.name) && U.checkStringContainsOne(c.name, Array("生", "没"))) {
+				val numberOfCharacters = "生".length //luckily, birth and death have the same length
 
 				val withoutBeginning = c.name.substring("Category:".length)
 				val withoutEnding = withoutBeginning.substring(0, withoutBeginning.length - numberOfCharacters)
 
-				val isBC = withoutEnding.contains("BC")
+				val isBC = withoutEnding.contains("紀元前")
 
 				val candidateYearTmp =
-					U.getNumbers(withoutEnding).toInt * (if (withoutEnding.contains("century")) 100 else 1)
+					U.getNumbers(withoutEnding).toInt * (if (withoutEnding.contains("世紀")) 100 else 1)
 
 				val candidateYear =
-					candidateYearTmp - (if (withoutEnding.contains("century")) 100 else 0)
+					candidateYearTmp - (if (withoutEnding.contains("世紀")) 100 else 0)
 
 				sdf.parse(candidateYear + (if (isBC) " BC" else " AD"))
-			} else if (U.containsNumber(c.name) && U.checkStringContainsAll(c.name, Array("century", "BC", "th"))) {
+			} else if (U.containsNumber(c.name) && U.checkStringContainsAll(c.name, Array("世紀", "紀元前"))) {
 				// a lot of the religious history is only designated by century BC, without exact birth year
-				sdf.parse(((U.getNumbers(c.name).toInt * 100) - 100) + " BC")
+				sdf.parse(((U.getNumbers(c.name).toInt * 100)-100) + " BC")
 			} else null
 		}
 		catch {
